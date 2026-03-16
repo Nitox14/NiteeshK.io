@@ -1,0 +1,155 @@
+/* ════════════════════════════════════
+   KEYFRAME ANIMATIONS
+════════════════════════════════════ */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+@keyframes pulse-dot {
+  0%   { box-shadow: 0 0 0 0 rgba(0,255,159,0.5); }
+  70%  { box-shadow: 0 0 0 8px rgba(0,255,159,0); }
+  100% { box-shadow: 0 0 0 0 rgba(0,255,159,0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes grid-pulse {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 0.8; }
+}
+
+/* ════════════════════════════════════
+   SCROLL-REVEAL STATES
+════════════════════════════════════ */
+
+/* Initial hidden state — added via JS */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+
+/* Visible state — toggled by IntersectionObserver */
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger delays for grid children */
+.reveal:nth-child(2) { transition-delay: 0.08s; }
+.reveal:nth-child(3) { transition-delay: 0.16s; }
+.reveal:nth-child(4) { transition-delay: 0.24s; }
+.reveal:nth-child(5) { transition-delay: 0.32s; }
+.reveal:nth-child(6) { transition-delay: 0.40s; }
+
+/* ════════════════════════════════════
+   ELEMENT-SPECIFIC ANIMATIONS
+════════════════════════════════════ */
+
+/* Hero text entrance */
+.hero__pre    { animation: fade-up 0.6s ease 0.1s both; }
+.hero__name   { animation: fade-up 0.6s ease 0.2s both; }
+.hero__role   { animation: fade-up 0.6s ease 0.35s both; }
+.hero__badge  { animation: fade-up 0.6s ease 0.45s both; }
+.hero__actions { animation: fade-up 0.6s ease 0.55s both; }
+.hero__visual  { animation: fade-in 0.9s ease 0.4s both; }
+.hero__scroll  { animation: float 2.5s ease-in-out 1s infinite; }
+
+/* Grid background pulse */
+.hero__grid-bg {
+  animation: grid-pulse 6s ease-in-out infinite;
+}
+
+/* Project card hover lift */
+.project-card {
+  transition:
+    border-color 0.25s ease,
+    box-shadow   0.25s ease,
+    transform    0.25s ease;
+}
+
+/* Nav scroll shadow */
+.nav--scrolled {
+  background: rgba(10, 14, 23, 0.97) !important;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+/* Active nav link underline */
+.nav__links a {
+  position: relative;
+}
+.nav__links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: var(--accent);
+  transition: width 0.25s ease;
+}
+.nav__links a:hover::after,
+.nav__links a.active::after {
+  width: 100%;
+}
+/* Don't apply underline to the CTA button */
+.nav__cta::after { display: none !important; }
+
+/* Mobile menu slide */
+@media (max-width: 768px) {
+  .nav__links {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0;
+    right: 0;
+    background: rgba(10,14,23,0.98);
+    backdrop-filter: blur(16px);
+    flex-direction: column;
+    padding: 2rem;
+    gap: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    transform: translateY(-100%);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .nav__links.open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  /* Burger → X animation */
+  .nav__burger.open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav__burger.open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .nav__burger.open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+}

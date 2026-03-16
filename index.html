@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="SOC Analyst | Incident Response & Security Operations | eJPT · ICCA" />
+  <meta property="og:title" content="Niteesh Komurlekar — Cybersecurity Portfolio" />
+  <meta property="og:description" content="SOC Analyst with experience at ReBIT and eSentire." />
+  <meta property="og:type" content="website" />
+  <title>Niteesh Komurlekar | SOC Analyst</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/animations.css" />
+  <link rel="stylesheet" href="assets/css/responsive.css" />
+</head>
+<body>
+
+  <!-- ════════════════════════════════════
+       NAV
+  ════════════════════════════════════ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="#hero" class="nav__logo">&gt; Mr_Niteesh.sh</a>
+      <button class="nav__burger" id="navBurger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav__links" id="navLinks">
+        <li><a href="#about">About</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#experience">Experience</a></li>
+        <li><a href="#toolkit">Toolkit</a></li>
+        <li><a href="#certs">Certs</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact" class="nav__cta">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ════════════════════════════════════
+       HERO
+  ════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero__grid-bg"></div>
+    <div class="hero__inner hero__inner--about">
+
+      <!-- LEFT: Name + Bio -->
+      <div class="hero__text">
+        <p class="hero__pre"><span class="accent">&gt;</span> whoami</p>
+        <h1 class="hero__name">Niteesh Komurlekar</h1>
+        <p class="hero__role">
+          <span class="typewriter" id="typewriter"></span><span class="cursor">|</span>
+        </p>
+        <p class="hero__bio">
+          SOC Analyst with hands-on experience across India's central banking infrastructure and a global MDR provider in Ireland.
+          Specialising in real-time threat detection, incident response, and SIEM-driven investigations across large-scale enterprise environments.
+        </p>
+        <div class="hero__pills">
+          <span class="pill">Blue Team</span>
+          <span class="pill">1.3 Yrs SOC</span>
+          <span class="pill">eJPT</span>
+          <span class="pill">ICCA</span>
+          <span class="pill">OSCP — In Progress</span>
+        </div>
+        <div class="hero__actions">
+          <a href="assets/docs/resume.pdf" class="btn btn--primary" download>Download Resume</a>
+          <a href="#skills" class="btn btn--ghost">View Skills</a>
+        </div>
+      </div>
+
+      <!-- RIGHT: Photo -->
+      <div class="hero__photo">
+        <div class="hero__photo-frame">
+          <img src="assets/images/profile.webp" alt="Niteesh Komurlekar" />
+        </div>
+      </div>
+
+    </div>
+    <a href="#about" class="hero__scroll" aria-label="Scroll down">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="6 9 12 15 18 9"></polyline>
+      </svg>
+    </a>
+  </section>
+
+  <!-- ════════════════════════════════════
+       ABOUT
+  ════════════════════════════════════ -->
+  <section class="section about" id="about">
+    <div class="container">
+      <h2 class="section__title reveal">About Me</h2>
+      <div class="about__grid">
+        <div class="about__content reveal">
+          <p class="about__text">
+            SOC Analyst with hands-on experience across India's central banking infrastructure and a global
+            Managed Detection &amp; Response provider in Ireland. I specialize in real-time threat detection,
+            incident response, and SIEM-driven investigations across large-scale enterprise environments.
+          </p>
+          <p class="about__text">
+            My journey from <strong>ReBIT</strong> — the cyber arm of the Reserve Bank of India — to
+            <strong>eSentire</strong> in Ireland has given me a rare combination of BFSI security depth
+            and international MDR exposure. Actively pursuing growth in SOC L2/L3 and Threat Intelligence.
+          </p>
+          <div class="journey">
+            <div class="journey__item">
+              <span class="journey__year">2021</span>
+              <span class="journey__label">ReBIT, Mumbai<br><small>SOC Analyst</small></span>
+            </div>
+            <div class="journey__arrow">→</div>
+            <div class="journey__item">
+              <span class="journey__year">2022</span>
+              <span class="journey__label">MTU, Ireland<br><small>PG Cybersecurity</small></span>
+            </div>
+            <div class="journey__arrow">→</div>
+            <div class="journey__item">
+              <span class="journey__year">2023</span>
+              <span class="journey__label">Professional Development<br><small>eJPT · ICCA · Labs</small></span>
+            </div>
+            <div class="journey__arrow">→</div>
+            <div class="journey__item journey__item--active">
+              <span class="journey__year">2025</span>
+              <span class="journey__label">eSentire, Ireland<br><small>SOC Analyst</small></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       SKILLS
+  ════════════════════════════════════ -->
+  <section class="section skills" id="skills">
+    <div class="container">
+      <h2 class="section__title reveal">Technical Skills</h2>
+      <div class="skills__grid">
+
+        <div class="skill-card reveal">
+          <div class="skill-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          </div>
+          <h3>SIEM &amp; Log Analysis</h3>
+          <ul>
+            <li><span class="skill__name">IBM QRadar</span><div class="skill__bar"><div class="skill__fill" data-width="90"></div></div><span class="skill__tag">Proficient</span></li>
+            <li><span class="skill__name">Microsoft Sentinel</span><div class="skill__bar"><div class="skill__fill" data-width="75"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">SumoLogic</span><div class="skill__bar"><div class="skill__fill" data-width="70"></div></div><span class="skill__tag">Working</span></li>
+          </ul>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3>Endpoint &amp; EDR</h3>
+          <ul>
+            <li><span class="skill__name">Malware Triage</span><div class="skill__bar"><div class="skill__fill" data-width="85"></div></div><span class="skill__tag">Proficient</span></li>
+            <li><span class="skill__name">IOC Identification</span><div class="skill__bar"><div class="skill__fill" data-width="85"></div></div><span class="skill__tag">Proficient</span></li>
+            <li><span class="skill__name">Alert Validation</span><div class="skill__bar"><div class="skill__fill" data-width="90"></div></div><span class="skill__tag">Proficient</span></li>
+          </ul>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+          </div>
+          <h3>Network Security</h3>
+          <ul>
+            <li><span class="skill__name">Wireshark / CloudShark</span><div class="skill__bar"><div class="skill__fill" data-width="80"></div></div><span class="skill__tag">Proficient</span></li>
+            <li><span class="skill__name">Check Point / Cisco ASA</span><div class="skill__bar"><div class="skill__fill" data-width="75"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">Palo Alto / Fortinet</span><div class="skill__bar"><div class="skill__fill" data-width="70"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">IDS/IPS</span><div class="skill__bar"><div class="skill__fill" data-width="75"></div></div><span class="skill__tag">Working</span></li>
+          </ul>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          </div>
+          <h3>Scripting</h3>
+          <ul>
+            <li><span class="skill__name">Python</span><div class="skill__bar"><div class="skill__fill" data-width="70"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">Bash</span><div class="skill__bar"><div class="skill__fill" data-width="70"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">PowerShell</span><div class="skill__bar"><div class="skill__fill" data-width="65"></div></div><span class="skill__tag">Working</span></li>
+          </ul>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <h3>Cloud &amp; Identity</h3>
+          <ul>
+            <li><span class="skill__name">Microsoft M365 / Azure</span><div class="skill__bar"><div class="skill__fill" data-width="70"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">Okta / Microsoft Entra ID</span><div class="skill__bar"><div class="skill__fill" data-width="65"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">AWS</span><div class="skill__bar"><div class="skill__fill" data-width="55"></div></div><span class="skill__tag">Familiar</span></li>
+            <li><span class="skill__name">LaceWork / GCP</span><div class="skill__bar"><div class="skill__fill" data-width="45"></div></div><span class="skill__tag">Familiar</span></li>
+          </ul>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <h3>Offensive &amp; DFIR</h3>
+          <ul>
+            <li><span class="skill__name">VAPT / eJPT</span><div class="skill__bar"><div class="skill__fill" data-width="85"></div></div><span class="skill__tag">Proficient</span></li>
+            <li><span class="skill__name">Autopsy / Volatility</span><div class="skill__bar"><div class="skill__fill" data-width="85"></div></div><span class="skill__tag">Proficient</span></li>
+            <li><span class="skill__name">Nmap / Burp Suite</span><div class="skill__bar"><div class="skill__fill" data-width="70"></div></div><span class="skill__tag">Working</span></li>
+            <li><span class="skill__name">Static &amp; Dynamic Malware Analysis</span><div class="skill__bar"><div class="skill__fill" data-width="75"></div></div><span class="skill__tag">Working</span></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="frameworks reveal">
+        <h3>Frameworks &amp; Standards</h3>
+        <div class="framework-tags">
+          <span class="ftag">MITRE ATT&CK</span>
+          <span class="ftag">NIST CSF</span>
+          <span class="ftag">OWASP Top 10</span>
+          <span class="ftag">Kill Chain</span>
+          <span class="ftag">PICERL</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       EXPERIENCE TIMELINE
+  ════════════════════════════════════ -->
+  <section class="section experience" id="experience">
+    <div class="container">
+      <h2 class="section__title reveal">Experience</h2>
+      <div class="timeline">
+
+        <div class="timeline__item timeline__item--right reveal">
+          <div class="timeline__node"></div>
+          <div class="timeline__card">
+            <div class="timeline__meta">
+              <span class="timeline__date">Oct 2025 – Present</span>
+              <span class="timeline__badge timeline__badge--active">Current</span>
+            </div>
+            <h3 class="timeline__role">SOC Analyst</h3>
+            <p class="timeline__company">eSentire · Ireland</p>
+            <p class="timeline__sub">Global MSSP | 24x7 Managed Detection &amp; Response</p>
+            <ul class="timeline__bullets">
+              <li>Operate within eSentire's <strong>Atlas XDR Platform</strong> — monitoring and triaging security alerts across endpoint, network, log, cloud, and identity sources for enterprise clients globally.</li>
+              <li>Conduct customer investigations by pivoting across <strong>CrowdStrike Falcon, SentinelOne, Carbon Black EDR, and Microsoft Defender for Endpoint</strong> to build timelines of malware and intrusion activity.</li>
+              <li>Investigate identity-based alerts using <strong>Okta, Microsoft Entra ID,</strong> and Microsoft Defender for O365 and Cloud Apps.</li>
+              <li>Analyse firewall and network telemetry from <strong>Palo Alto, Fortinet, Check Point, and Cisco ASA</strong> to support active incident investigations.</li>
+              <li>Work with vulnerability data from <strong>Qualys, Rapid7, and Tenable</strong> to correlate exposure context during incident triage.</li>
+              <li>Perform static and dynamic malware analysis; document IOCs and findings for internal incident handling channels and client reporting.</li>
+            </ul>
+            <div class="timeline__tags">
+              <span>Atlas XDR</span><span>CrowdStrike</span><span>SentinelOne</span><span>Entra ID</span><span>Palo Alto</span><span>Qualys</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline__item timeline__item--left reveal">
+          <div class="timeline__node"></div>
+          <div class="timeline__card">
+            <div class="timeline__meta">
+              <span class="timeline__date">Nov 2023 – Oct 2025</span>
+            </div>
+            <h3 class="timeline__role">Professional Development &amp; Upskilling</h3>
+            <p class="timeline__company">Self-Directed · Cybersecurity Research &amp; Lab Work</p>
+            <ul class="timeline__bullets">
+              <li>Built a Windows Active Directory home lab simulating Red Team TTPs — reconnaissance, lateral movement, exploitation, and evasion detection.</li>
+              <li>Completed LetsDefend SOC Analyst Path covering incident triage, malware analysis, and SIEM-based detection workflows.</li>
+              <li>Earned <strong>eJPT</strong> (Dec 2024) and <strong>ICCA</strong> (Feb 2025) certifications through INE Security.</li>
+              <li>Regular practice on HTB Academy — focused on AD-based Windows boxes and Linux privilege escalation.</li>
+              <li>Studied enumeration, PowerShell-based attacks, and persistence mechanism detection.</li>
+            </ul>
+            <div class="timeline__tags">
+              <span>eJPT</span><span>ICCA</span><span>HTB</span><span>AD Lab</span><span>LetsDefend</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline__item timeline__item--right reveal">
+          <div class="timeline__node"></div>
+          <div class="timeline__card">
+            <div class="timeline__meta">
+              <span class="timeline__date">Sep 2022 – Nov 2023</span>
+            </div>
+            <h3 class="timeline__role">PG Diploma — Cybersecurity</h3>
+            <p class="timeline__company">Munster Technological University · Cork, Ireland</p>
+            <ul class="timeline__bullets">
+              <li>Full-time postgraduate program focused on practical cybersecurity skills.</li>
+              <li>Modules: Network Security, Malware Analysis, DFIR, Offensive Security, Scripting.</li>
+              <li>Built foundational skills in penetration testing, digital forensics, and threat analysis.</li>
+            </ul>
+            <div class="timeline__tags">
+              <span>Network Security</span><span>Malware Analysis</span><span>DFIR</span><span>Offensive Security</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline__item timeline__item--left reveal">
+          <div class="timeline__node"></div>
+          <div class="timeline__card">
+            <div class="timeline__meta">
+              <span class="timeline__date">Nov 2021 – Aug 2022</span>
+            </div>
+            <h3 class="timeline__role">SOC Analyst</h3>
+            <p class="timeline__company">Reserve Bank Information Technology (ReBIT) · Mumbai, India</p>
+            <p class="timeline__sub">RBI-established entity securing India's banking cyber infrastructure</p>
+            <ul class="timeline__bullets">
+              <li>Monitored and triaged security alerts using IBM QRadar across <strong>60,000+ endpoints</strong> in India's central banking ecosystem.</li>
+              <li>Investigated incidents using log data from Checkpoint/Cisco ASA firewalls, IDS/IPS, and endpoint controls.</li>
+              <li>Conducted phishing analysis, improved mail filter policies, and delivered user awareness training.</li>
+              <li>Performed threat hunting and IOC correlation tied to APTs targeting Indian financial sector.</li>
+              <li>Reduced average incident resolution time by <strong>40%</strong> through streamlined documentation.</li>
+              <li>Maintained KPI reports and weekly/monthly metrics for SOC leadership.</li>
+            </ul>
+            <div class="timeline__tags">
+              <span>QRadar</span><span>Checkpoint</span><span>IDS/IPS</span><span>BFSI</span><span>APT Hunting</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="timeline__item timeline__item--left reveal">
+          <div class="timeline__node"></div>
+          <div class="timeline__card">
+            <div class="timeline__meta">
+              <span class="timeline__date">2017 – 2021</span>
+            </div>
+            <h3 class="timeline__role">BE — Electronics &amp; Telecommunication</h3>
+            <p class="timeline__company">Vidyalankar Institute of Technology · Mumbai, India</p>
+            <ul class="timeline__bullets">
+              <li>Engineering foundation covering networking, signal processing, and embedded systems.</li>
+            </ul>
+            <div class="timeline__tags">
+              <span>Networking</span><span>Electronics</span><span>Telecom</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       CERTIFICATIONS
+  ════════════════════════════════════ -->
+  <!-- ════════════════════════════════════
+       TOOLKIT
+  ════════════════════════════════════ -->
+  <section class="section toolkit" id="toolkit">
+    <div class="container">
+      <h2 class="section__title reveal">Toolkit</h2>
+      <p class="toolkit__sub reveal">Tools I have worked with across SOC operations, incident response, and offensive security.</p>
+
+      <div class="toolkit__grid">
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> SIEM &amp; Log Management</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">IBM QRadar</span>
+            <span class="ttag">Microsoft Sentinel</span>
+            <span class="ttag">SumoLogic</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> EDR &amp; Endpoint</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">CrowdStrike Falcon</span>
+            <span class="ttag">CrowdStrike Identity</span>
+            <span class="ttag">SentinelOne</span>
+            <span class="ttag">Carbon Black EDR</span>
+            <span class="ttag">Carbon Black Bluesteel</span>
+            <span class="ttag">Microsoft Defender for Endpoint</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> Network &amp; Firewall</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">Wireshark</span>
+            <span class="ttag">CloudShark</span>
+            <span class="ttag">TCPdump</span>
+            <span class="ttag">Palo Alto Networks</span>
+            <span class="ttag">Fortinet</span>
+            <span class="ttag">Check Point</span>
+            <span class="ttag">Cisco ASA</span>
+            <span class="ttag">IDS/IPS</span>
+            <span class="ttag">Web Proxies</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> Cloud &amp; Identity</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">Microsoft M365</span>
+            <span class="ttag">Microsoft Defender for O365</span>
+            <span class="ttag">Microsoft Entra ID</span>
+            <span class="ttag">Okta</span>
+            <span class="ttag">Azure</span>
+            <span class="ttag">AWS</span>
+            <span class="ttag">GCP</span>
+            <span class="ttag">LaceWork</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> Platforms &amp; Case Mgmt</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">eSentire Atlas XDR</span>
+            <span class="ttag">ServiceNow</span>
+            <span class="ttag">Jira</span>
+            <span class="ttag">VMware</span>
+            <span class="ttag">VirtualBox</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> Vulnerability Management</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">Qualys</span>
+            <span class="ttag">Rapid7</span>
+            <span class="ttag">Tenable</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> DFIR &amp; Malware Analysis</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">Autopsy</span>
+            <span class="ttag">Volatility</span>
+            <span class="ttag">Static Malware Analysis</span>
+            <span class="ttag">Dynamic Malware Analysis</span>
+            <span class="ttag">Timeline Analysis</span>
+            <span class="ttag">File System Forensics</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> Offensive Security</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">Nmap</span>
+            <span class="ttag">Burp Suite</span>
+            <span class="ttag">Metasploit</span>
+            <span class="ttag">BloodHound</span>
+            <span class="ttag">Mimikatz</span>
+            <span class="ttag">Netcat</span>
+            <span class="ttag">Gobuster</span>
+          </div>
+        </div>
+
+        <div class="toolkit__category reveal">
+          <h3><span class="toolkit__cat-icon">◈</span> Scripting &amp; Automation</h3>
+          <div class="toolkit__tags">
+            <span class="ttag">Python</span>
+            <span class="ttag">Bash</span>
+            <span class="ttag">PowerShell</span>
+            <span class="ttag">KQL</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <section class="section certs" id="certs">
+    <div class="container">
+      <h2 class="section__title reveal">Certifications</h2>
+      <div class="certs__grid">
+
+        <div class="cert-card reveal">
+          <div class="cert-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+          </div>
+          <div class="cert-card__body">
+            <span class="cert-card__code">eJPT</span>
+            <h3>eLearnSecurity Junior Penetration Tester</h3>
+            <p>INE / eLearnSecurity</p>
+            <span class="cert-card__date">Certified — Dec 2024</span>
+          </div>
+          <span class="cert-card__status cert-card__status--earned">Earned</span>
+        </div>
+
+        <div class="cert-card reveal">
+          <div class="cert-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
+          </div>
+          <div class="cert-card__body">
+            <span class="cert-card__code">ICCA</span>
+            <h3>INE Certified Cloud Associate</h3>
+            <p>INE Security</p>
+            <span class="cert-card__date">Certified — Feb 2025</span>
+          </div>
+          <span class="cert-card__status cert-card__status--earned">Earned</span>
+        </div>
+
+        <div class="cert-card cert-card--inprogress reveal">
+          <div class="cert-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <div class="cert-card__body">
+            <span class="cert-card__code">OSCP</span>
+            <h3>Offensive Security Certified Professional</h3>
+            <p>Offensive Security</p>
+            <span class="cert-card__date">Expected — Oct 2026</span>
+          </div>
+          <span class="cert-card__status cert-card__status--progress">In Progress</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       PROJECTS / LAB WORK
+  ════════════════════════════════════ -->
+  <section class="section projects" id="projects">
+    <div class="container">
+      <h2 class="section__title reveal">Projects &amp; Lab Work</h2>
+      <div class="projects__grid">
+
+        <div class="project-card reveal">
+          <div class="project-card__bar">
+            <span class="dot dot--red"></span>
+            <span class="dot dot--yellow"></span>
+            <span class="dot dot--green"></span>
+            <span class="project-card__title-bar">active_directory_lab.sh</span>
+          </div>
+          <div class="project-card__body">
+            <h3>Windows AD Home Lab</h3>
+            <p>
+              Built a full Active Directory environment in VirtualBox/VMware to simulate Red Team TTPs
+              and practice detection engineering. Covers reconnaissance, exploitation, lateral movement,
+              and evasion — all logged and analyzed in SIEM.
+            </p>
+            <div class="project-card__stack">
+              <span>VirtualBox</span><span>Windows Server</span><span>Splunk</span><span>BloodHound</span>
+            </div>
+            <ul class="project-card__points">
+              <li>LLMNR poisoning, Kerberoasting, Pass-the-Hash simulation</li>
+              <li>Custom detection rules for common AD attacks</li>
+              <li>PowerShell attack techniques and evasion methods</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-card__bar">
+            <span class="dot dot--red"></span>
+            <span class="dot dot--yellow"></span>
+            <span class="dot dot--green"></span>
+            <span class="project-card__title-bar">oscp_journey.sh</span>
+          </div>
+          <div class="project-card__body">
+            <h3>OSCP Lab Progress</h3>
+            <p>
+              Actively progressing through Offensive Security's PEN-200 course and PWK labs.
+              Focus on privilege escalation, Active Directory attacks, and buffer overflow exploitation.
+            </p>
+            <div class="project-card__stack">
+              <span>Kali Linux</span><span>Metasploit</span><span>Burp Suite</span><span>PEN-200</span>
+            </div>
+            <ul class="project-card__points">
+              <li>Linux &amp; Windows privilege escalation techniques</li>
+              <li>Active Directory attack chains in lab environment</li>
+              <li>Expected certification: October 2026</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-card__bar">
+            <span class="dot dot--red"></span>
+            <span class="dot dot--yellow"></span>
+            <span class="dot dot--green"></span>
+            <span class="project-card__title-bar">blue_team_lab.sh</span>
+          </div>
+          <div class="project-card__body">
+            <h3>LetsDefend SOC Analyst Path</h3>
+            <p>
+              Progressing through LetsDefend's SOC Analyst learning path with focus on
+              incident triage, malware analysis, and log-based threat detection workflows.
+            </p>
+            <div class="project-card__stack">
+              <span>LetsDefend</span><span>HTB Academy</span><span>Wireshark</span>
+            </div>
+            <ul class="project-card__points">
+              <li>Incident triage and escalation workflows</li>
+              <li>Malware analysis and sandbox investigation</li>
+              <li>Log-based detection and SIEM rule writing</li>
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       CONTACT
+  ════════════════════════════════════ -->
+  <section class="section contact" id="contact">
+    <div class="container">
+      <div class="contact__inner reveal">
+        <h2 class="section__title">Let's Connect</h2>
+        <p class="contact__sub">
+          Open to SOC L2/L3, Threat Intelligence, and VAPT roles.
+        </p>
+        <div class="contact__links">
+          <a href="https://www.linkedin.com/in/niteesh-komurlekar/" class="contact__link" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            linkedin.com/in/niteesh-komurlekar
+          </a>
+          <a href="mailto:niteesh.komurlekar07@gmail.com" class="contact__link">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            niteesh.komurlekar07@gmail.com
+          </a>
+          <a href="https://github.com/Nitox14" class="contact__link" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+            github.com/Nitox14
+          </a>
+        </div>
+        <a href="assets/docs/resume.pdf" class="btn btn--primary btn--lg" download>
+          Download Resume (PDF)
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ════════════════════════════════════
+       FOOTER
+  ════════════════════════════════════ -->
+  <footer class="footer">
+    <p><span class="accent">&gt;</span> Niteesh Komurlekar · SOC Analyst</p>
+    <p class="footer__copy">© 2026 Niteesh.Komurlekar. All rights reserved.</p>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="assets/js/typewriter.js"></script>
+  <script src="assets/js/animations.js"></script>
+  <script src="assets/js/main.js"></script>
+</body>
+</html>

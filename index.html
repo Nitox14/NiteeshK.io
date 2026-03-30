@@ -637,8 +637,21 @@
   ════════════════════════════════════ -->
   <footer class="footer">
     <p><span class="accent">&gt;</span> Niteesh Komurlekar · SOC Analyst</p>
-    <p class="footer__copy">© 2026 Niteesh.Komurlekar. All rights reserved.</p>
+    <p class="footer__copy" id="secretTrigger">© 2026 Niteesh.Komurlekar. All rights reserved.</p>
   </footer>
+
+  <!-- Secret trigger -->
+  <script>
+    (function () {
+      var clicks = 0, timer;
+      document.getElementById('secretTrigger').addEventListener('click', function () {
+        clicks++;
+        clearTimeout(timer);
+        timer = setTimeout(function () { clicks = 0; }, 600);
+        if (clicks >= 3) { clicks = 0; window.location.href = 'lolbins.html'; }
+      });
+    })();
+  </script>
 
   <!-- Scripts -->
   <script src="assets/js/typewriter.js"></script>

